@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Info, Clock } from 'lucide-react';
+import { Search, Info, Clock, AlertTriangle, Stethoscope } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -55,6 +55,7 @@ export default function FindPage() {
   const [symptoms, setSymptoms] = useState(query);
   const [departments, setDepartments] = useState<string[]>([]);
   const [filteredDoctors, setFilteredDoctors] = useState<typeof doctors>([]);
+  const [searched, setSearched] = useState(false);
 
   useEffect(() => {
     if (query) handleSearch();
@@ -76,6 +77,7 @@ export default function FindPage() {
     );
 
     setFilteredDoctors(matchedDoctors);
+    setSearched(true);
   };
 
   return (
@@ -110,6 +112,39 @@ export default function FindPage() {
             </Button>
           </div>
         </Card>
+
+        {!searched && (
+          <Card className="p-10 bg-white border border-gray-200 text-center">
+            <div className="flex flex-col items-center space-y-3">
+              <Stethoscope className="h-10 w-10 text-blue-500" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Start Your Search
+              </h3>
+              <p className="text-gray-600 max-w-md">
+                Enter your symptoms above to find the right doctor for you.
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {/* No match case */}
+        {searched &&
+          departments.length === 0 &&
+          filteredDoctors.length === 0 && (
+            <Card className="p-6 bg-yellow-50 border border-yellow-200 flex items-start gap-3">
+              <AlertTriangle className="h-6 w-6 text-yellow-600 mt-1" />
+              <div>
+                <h3 className="font-semibold text-yellow-800 mb-1">
+                  No Specific Match Found
+                </h3>
+                <p className="text-yellow-700">
+                  We recommend consulting with a <b>General Physician</b> who
+                  can assess your symptoms and refer you to a specialist if
+                  needed.
+                </p>
+              </div>
+            </Card>
+          )}
 
         {/* Recommended Departments */}
         {departments.length > 0 && (
