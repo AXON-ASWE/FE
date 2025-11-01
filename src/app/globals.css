@@ -1,56 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-h1 {
-  @apply text-4xl font-bold;
 
-}
-h2 {
-  @apply text-xl font-bold;
-}
-h3 {
-  @apply text-lg font-bold;
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
 }
 
-.prevent-select {
-  -webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
-}
-
-.main-container {
-	width: 100%;
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.select-none{
-  user-select: none;
-}
-
- /* Chrome, Safari, Edge, Opera */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Firefox */
-input[type=number] {
-  -moz-appearance: textfield;
-}
-
-
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-.hide-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
 }
 
 @layer base {
@@ -80,7 +43,6 @@ input[type=number] {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -107,20 +69,14 @@ input[type=number] {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-
   }
-
 }
 
 @layer base {
   * {
     @apply border-border;
-
   }
   body {
     @apply bg-background text-foreground;
-
   }
-
 }
-
