@@ -3,8 +3,8 @@
 import { Search, Heart, Calendar, Clock, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
-import Link from 'next/link';
 
 const doctors = [
   {
@@ -40,50 +40,9 @@ const doctors = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-blue-600" />
-              <span className="text-xl font-semibold text-gray-900">
-                HealthCare+
-              </span>
-            </div>
-
-            <nav className="hidden md:flex items-center gap-8">
-              <Link
-                href="/"
-                className="flex items-center gap-2 text-blue-600 font-medium"
-              >
-                <span className="text-blue-600">🏠</span>
-                Home
-              </Link>
-              <Link
-                href="/appointments"
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
-              >
-                <Calendar className="h-4 w-4" />
-                My Appointments
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                className="text-gray-700 hover:text-gray-900"
-              >
-                Find a Doctor
-              </Button>
-              <Button className="bg-black text-white hover:bg-gray-800">
-                Book Now
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -232,7 +191,10 @@ export default function Home() {
                   </span>
                 </div>
 
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => router.push(`/book/${doctor.id}`)}
+                >
                   Book Appointment
                 </Button>
               </CardContent>
