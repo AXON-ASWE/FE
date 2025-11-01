@@ -8,39 +8,39 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 const departmentsMap: Record<string, string[]> = {
-  headache: ['Neurology'],
-  fever: ['General Medicine'],
-  stomach: ['Gastroenterology'],
-  chest: ['Cardiology'],
+  headache: ['Thần kinh'],
+  fever: ['Đa khoa'],
+  stomach: ['Tiêu hoá'],
+  chest: ['Tim mạch'],
 };
 
 const doctors = [
   {
     id: 1,
-    name: 'Dr. Sarah Johnson',
-    specialty: 'Neurology',
+    name: 'BS. Sarah Johnson',
+    specialty: 'Thần kinh',
     rating: 4.8,
-    experience: '12 years exp',
+    experience: '12 năm kinh nghiệm',
     price: 150,
     image:
       'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
   },
   {
     id: 2,
-    name: 'Dr. James Anderson',
-    specialty: 'General Medicine',
+    name: 'BS. James Anderson',
+    specialty: 'Đa khoa',
     rating: 4.6,
-    experience: '10 years exp',
+    experience: '10 năm kinh nghiệm',
     price: 100,
     image:
       'https://images.pexels.com/photos/8460151/pexels-photo-8460151.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
   },
   {
     id: 3,
-    name: 'Dr. Michael Chen',
-    specialty: 'Gastroenterology',
+    name: 'BS. Michael Chen',
+    specialty: 'Tiêu hoá',
     rating: 4.9,
-    experience: '15 years exp',
+    experience: '15 năm kinh nghiệm',
     price: 175,
     image:
       'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
@@ -83,14 +83,14 @@ export default function FindPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
-        {/* Search Section */}
+        {/* Khu vực tìm kiếm */}
         <Card className="p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Find Doctor by Symptoms
+            Tìm bác sĩ theo triệu chứng
           </h2>
           <p className="text-gray-600 mb-4">
-            Enter your symptoms and we'll recommend the right specialists for
-            you
+            Nhập các triệu chứng của bạn và chúng tôi sẽ gợi ý chuyên khoa phù
+            hợp.
           </p>
 
           <div className="flex gap-2">
@@ -98,7 +98,7 @@ export default function FindPage() {
               <Search className="h-5 w-5 text-gray-400 mr-2" />
               <Input
                 type="text"
-                placeholder="e.g., headache, fever"
+                placeholder="Ví dụ: đau đầu, sốt, đau bụng..."
                 value={symptoms}
                 onChange={(e) => setSymptoms(e.target.value)}
                 className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -108,26 +108,27 @@ export default function FindPage() {
               onClick={handleSearch}
               className="bg-blue-600 hover:bg-blue-700"
             >
-              Search
+              Tìm kiếm
             </Button>
           </div>
         </Card>
 
+        {/* Khi chưa tìm kiếm */}
         {!searched && (
           <Card className="p-10 bg-white border border-gray-200 text-center">
             <div className="flex flex-col items-center space-y-3">
               <Stethoscope className="h-10 w-10 text-blue-500" />
               <h3 className="text-lg font-semibold text-gray-900">
-                Start Your Search
+                Bắt đầu tìm kiếm
               </h3>
               <p className="text-gray-600 max-w-md">
-                Enter your symptoms above to find the right doctor for you.
+                Nhập triệu chứng của bạn phía trên để tìm bác sĩ phù hợp.
               </p>
             </div>
           </Card>
         )}
 
-        {/* No match case */}
+        {/* Không tìm thấy kết quả */}
         {searched &&
           departments.length === 0 &&
           filteredDoctors.length === 0 && (
@@ -135,28 +136,28 @@ export default function FindPage() {
               <AlertTriangle className="h-6 w-6 text-yellow-600 mt-1" />
               <div>
                 <h3 className="font-semibold text-yellow-800 mb-1">
-                  No Specific Match Found
+                  Không tìm thấy chuyên khoa cụ thể
                 </h3>
                 <p className="text-yellow-700">
-                  We recommend consulting with a <b>General Physician</b> who
-                  can assess your symptoms and refer you to a specialist if
-                  needed.
+                  Chúng tôi khuyến nghị bạn nên gặp <b>bác sĩ đa khoa</b> để
+                  được thăm khám ban đầu và tư vấn chuyên khoa phù hợp nếu cần.
                 </p>
               </div>
             </Card>
           )}
 
-        {/* Recommended Departments */}
+        {/* Chuyên khoa gợi ý */}
         {departments.length > 0 && (
           <Card className="p-6 bg-blue-50 border border-blue-200">
             <div className="flex items-start gap-3">
               <Info className="h-6 w-6 text-blue-600 mt-1" />
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">
-                  Recommended Departments
+                  Chuyên khoa được gợi ý
                 </h3>
                 <p className="text-gray-600 mb-3">
-                  Based on your symptoms, we recommend consulting with:
+                  Dựa trên triệu chứng của bạn, chúng tôi khuyến nghị bạn nên
+                  khám tại:
                 </p>
                 <div className="flex gap-2 flex-wrap">
                   {departments.map((dept) => (
@@ -173,12 +174,12 @@ export default function FindPage() {
           </Card>
         )}
 
-        {/* Available Doctors */}
+        {/* Danh sách bác sĩ phù hợp */}
         {filteredDoctors.length > 0 && (
           <div>
-            <h3 className="text-lg font-semibold mb-2">Available Doctors</h3>
+            <h3 className="text-lg font-semibold mb-2">Bác sĩ phù hợp</h3>
             <p className="text-gray-500 mb-6">
-              {filteredDoctors.length} doctors available
+              Có {filteredDoctors.length} bác sĩ phù hợp với triệu chứng của bạn
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -215,11 +216,11 @@ export default function FindPage() {
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                         <span className="text-sm text-green-600 font-medium">
-                          Available
+                          Có sẵn
                         </span>
                       </div>
                       <span className="text-lg font-semibold text-gray-900">
-                        ${doctor.price}
+                        {doctor.price.toLocaleString('vi-VN')}₫
                       </span>
                     </div>
 
@@ -227,7 +228,7 @@ export default function FindPage() {
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       onClick={() => router.push(`/book/${doctor.id}`)}
                     >
-                      Book Appointment
+                      Đặt lịch khám
                     </Button>
                   </CardContent>
                 </Card>
