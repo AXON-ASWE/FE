@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
+import { useState } from 'react';
 
 const doctors = [
   {
@@ -41,6 +42,12 @@ const doctors = [
 
 export default function Home() {
   const router = useRouter();
+  const [searchText, setSearchText] = useState('');
+  const handleSearch = () => {
+    if (!searchText.trim()) return;
+    router.push(`/find?q=${encodeURIComponent(searchText)}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <section className="bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white py-20">
@@ -59,11 +66,16 @@ export default function Home() {
                 <Search className="h-5 w-5 text-gray-400 mr-2" />
                 <Input
                   type="text"
-                  placeholder="Enter your symptoms (e.g., headache, fever, stomach pain)"
+                  placeholder="Enter your symptoms (e.g., headache, fever)"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)} // ✅ cập nhật input
                   className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-gray-900 placeholder:text-gray-500"
                 />
               </div>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8">
+              <Button
+                onClick={handleSearch}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8"
+              >
                 Search
               </Button>
             </div>
