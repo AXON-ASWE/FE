@@ -7,13 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-const departmentsMap: Record<string, string[]> = {
-  headache: ['Thần kinh'],
-  fever: ['Đa khoa'],
-  stomach: ['Tiêu hoá'],
-  chest: ['Tim mạch'],
-};
-
 const doctors = [
   {
     id: 1,
@@ -21,7 +14,7 @@ const doctors = [
     specialty: 'Thần kinh',
     rating: 4.8,
     experience: '12 năm kinh nghiệm',
-    price: 150,
+    price: 150000,
     image:
       'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
   },
@@ -31,7 +24,7 @@ const doctors = [
     specialty: 'Đa khoa',
     rating: 4.6,
     experience: '10 năm kinh nghiệm',
-    price: 100,
+    price: 100000,
     image:
       'https://images.pexels.com/photos/8460151/pexels-photo-8460151.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
   },
@@ -41,9 +34,19 @@ const doctors = [
     specialty: 'Tiêu hoá',
     rating: 4.9,
     experience: '15 năm kinh nghiệm',
-    price: 175,
+    price: 175000,
     image:
       'https://images.pexels.com/photos/5452293/pexels-photo-5452293.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
+  },
+  {
+    id: 4,
+    name: 'BS. Emily Nguyen',
+    specialty: 'Tim mạch',
+    rating: 4.7,
+    experience: '11 năm kinh nghiệm',
+    price: 180000,
+    image:
+      'https://images.pexels.com/photos/5214959/pexels-photo-5214959.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
   },
 ];
 
@@ -56,24 +59,87 @@ export default function FindPage() {
   const [departments, setDepartments] = useState<string[]>([]);
   const [filteredDoctors, setFilteredDoctors] = useState<typeof doctors>([]);
   const [searched, setSearched] = useState(false);
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  // Gợi ý triệu chứng (bằng tiếng Việt)
+  const suggestions = [
+    'Đau đầu',
+    'Sốt',
+    'Đau bụng',
+    'Đau ngực',
+    'Mệt mỏi',
+    'Buồn nôn',
+    'Đau lưng',
+  ];
+
+  // Map triệu chứng → chuyên khoa
+  const departmentsMap: Record<string, string[]> = {
+    'Đau đầu': ['Thần kinh'],
+    Sốt: ['Đa khoa'],
+    'Đau bụng': ['Tiêu hoá'],
+    'Đau ngực': ['Tim mạch'],
+    'Mệt mỏi': ['Đa khoa'],
+    'Buồn nôn': ['Tiêu hoá'],
+    'Đau lưng': ['Cơ xương khớp'],
+  };
+
+  const filteredSuggestions = suggestions.filter((s) =>
+    s.toLowerCase().includes(symptoms.toLowerCase())
+  );
+
+  const handleSelectSymptom = (label: string) => {
+    if (!selectedSymptoms.includes(label)) {
+      setSelectedSymptoms([...selectedSymptoms, label]);
+    }
+    setSymptoms('');
+    setShowDropdown(false);
+  };
+
+  const removeSymptom = (label: string) => {
+    setSelectedSymptoms(selectedSymptoms.filter((s) => s !== label));
+  };
 
   useEffect(() => {
-    if (query) handleSearch();
-  }, []);
+    if (query) {
+      // Tách query theo dấu phẩy hoặc khoảng trắng
+      const querySymptoms = query
+        .split(/[,]+/)
+        .map((q) => q.trim())
+        .filter((q) => q);
 
-  const handleSearch = () => {
-    const input = symptoms.toLowerCase().split(/[, ]+/);
+      // Match các triệu chứng hợp lệ trong danh sách gợi ý
+      const validMatches = querySymptoms.filter((q) =>
+        suggestions.some((s) => s.toLowerCase() === q.toLowerCase())
+      );
+
+      if (validMatches.length > 0) {
+        setSelectedSymptoms(validMatches);
+        setSymptoms('');
+        setSearched(false);
+        setTimeout(() => handleSearch(validMatches), 0);
+      } else {
+        // Nếu không có match nào, giữ nguyên text trong ô tìm kiếm
+        setSymptoms(query);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query]);
+
+  const handleSearch = (overrideSymptoms?: string[]) => {
+    const usedSymptoms = overrideSymptoms || selectedSymptoms;
     const matchedDepartments = new Set<string>();
 
-    input.forEach((word) => {
-      const found = departmentsMap[word];
-      if (found) found.forEach((d) => matchedDepartments.add(d));
+    usedSymptoms.forEach((label) => {
+      const deps = departmentsMap[label];
+      if (deps) deps.forEach((d) => matchedDepartments.add(d));
     });
 
-    setDepartments(Array.from(matchedDepartments));
+    const matchedDeptsArray = Array.from(matchedDepartments);
+    setDepartments(matchedDeptsArray);
 
     const matchedDoctors = doctors.filter((doc) =>
-      Array.from(matchedDepartments).includes(doc.specialty)
+      matchedDeptsArray.includes(doc.specialty)
     );
 
     setFilteredDoctors(matchedDoctors);
@@ -89,33 +155,71 @@ export default function FindPage() {
             Tìm bác sĩ theo triệu chứng
           </h2>
           <p className="text-gray-600 mb-4">
-            Nhập các triệu chứng của bạn và chúng tôi sẽ gợi ý chuyên khoa phù
-            hợp.
+            Nhập các triệu chứng của bạn (bằng tiếng Việt) và chọn từ danh sách
+            gợi ý.
           </p>
 
-          <div className="flex gap-2">
-            <div className="flex items-center flex-1 bg-gray-50 rounded-md px-3 border">
-              <Search className="h-5 w-5 text-gray-400 mr-2" />
-              <Input
-                type="text"
-                placeholder="Ví dụ: đau đầu, sốt, đau bụng..."
-                value={symptoms}
-                onChange={(e) => setSymptoms(e.target.value)}
-                className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
+          <div className="relative">
+            <div className="flex gap-2">
+              <div className="flex items-center flex-1 bg-gray-50 rounded-md px-3 border relative">
+                <Search className="h-5 w-5 text-gray-400 mr-2" />
+                <Input
+                  type="text"
+                  placeholder="Ví dụ: đau đầu, sốt, đau bụng..."
+                  value={symptoms}
+                  onChange={(e) => setSymptoms(e.target.value)}
+                  onFocus={() => setShowDropdown(true)}
+                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+              <Button
+                onClick={() => handleSearch()}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Tìm kiếm
+              </Button>
             </div>
-            <Button
-              onClick={handleSearch}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Tìm kiếm
-            </Button>
+
+            {/* Dropdown gợi ý */}
+            {showDropdown && filteredSuggestions.length > 0 && (
+              <ul className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-56 overflow-y-auto">
+                {filteredSuggestions.map((label) => (
+                  <li
+                    key={label}
+                    onClick={() => handleSelectSymptom(label)}
+                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-700"
+                  >
+                    {label}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* Tag triệu chứng đã chọn */}
+            {selectedSymptoms.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedSymptoms.map((symptom) => (
+                  <span
+                    key={symptom}
+                    className="bg-blue-600 text-white text-sm px-3 py-1 rounded-full flex items-center gap-2"
+                  >
+                    {symptom}
+                    <button
+                      onClick={() => removeSymptom(symptom)}
+                      className="text-white hover:text-gray-200"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </Card>
 
         {/* Khi chưa tìm kiếm */}
         {!searched && (
-          <Card className="p-10 bg-white border border-gray-200 text-center">
+          <Card className="p-10 bg-white border text-center">
             <div className="flex flex-col items-center space-y-3">
               <Stethoscope className="h-10 w-10 text-blue-500" />
               <h3 className="text-lg font-semibold text-gray-900">

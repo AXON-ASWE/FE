@@ -2,10 +2,34 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Calendar, Menu, X, ChevronDown, LogOut, User, Settings, Heart, Home } from 'lucide-react';
+import {
+  Calendar,
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+  User,
+  Settings,
+  Heart,
+  Home,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
@@ -13,12 +37,12 @@ import { useSession } from '@/context/Sessioncontext';
 
 const menuItems = [
   {
-    title: 'Home',
+    title: 'Trang chủ',
     href: '/',
     icon: <Home className="h-4 w-4" />,
   },
   {
-    title: 'My Appointments',
+    title: 'Lịch hẹn của tôi',
     href: '/appointments',
     icon: <Calendar className="h-4 w-4" />,
   },
@@ -29,14 +53,16 @@ export function Navbar() {
   const { session, status, setSession } = useSession();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(null);
+  const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(
+    null
+  );
 
   const handleLogout = () => {
     Cookies.remove('access_token', { path: '/' });
     Cookies.remove('refresh_token', { path: '/' });
     Cookies.remove('role', { path: '/' });
 
-    setSession(null); 
+    setSession(null);
     router.push('/auth/login');
   };
 
@@ -50,13 +76,19 @@ export function Navbar() {
           {/* LOGO */}
           <Link href="/" className="flex items-center gap-2">
             <Heart className="h-6 w-6 text-blue-600" />
-            <span className="text-xl font-semibold text-gray-900">HealthCare+</span>
+            <span className="text-xl font-semibold text-gray-900">
+              HealthCare+
+            </span>
           </Link>
 
           {/* DESKTOP MENU */}
           <div className="hidden lg:flex items-center gap-8">
             {menuItems.map((item) => (
-              <Link key={item.title} href={item.href} className="flex items-center gap-2 text-blue-600 font-medium">
+              <Link
+                key={item.title}
+                href={item.href}
+                className="flex items-center gap-2 text-blue-600 font-medium"
+              >
                 <span className="text-blue-600">{item.icon}</span>
                 {item.title}
               </Link>
@@ -80,16 +112,26 @@ export function Navbar() {
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">Tài khoản của tôi</p>
-                      <p className="text-xs text-muted-foreground">{session?.email}</p>
+                      <p className="text-sm font-medium leading-none">
+                        Tài khoản của tôi
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {session?.email}
+                      </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={() => router.push('/profile')}
+                    className="cursor-pointer"
+                  >
                     <User className="mr-2" size={16} />
                     Thông tin cá nhân
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/profile/change_password')} className="cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={() => router.push('/profile/change_password')}
+                    className="cursor-pointer"
+                  >
                     <Settings className="mr-2" size={16} />
                     Đổi mật khẩu
                   </DropdownMenuItem>
@@ -106,7 +148,10 @@ export function Navbar() {
             ) : (
               <>
                 <Link href="/auth/login">
-                  <Button variant="ghost" className="text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700">
+                  <Button
+                    variant="ghost"
+                    className="text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700"
+                  >
                     Đăng nhập
                   </Button>
                 </Link>
@@ -156,15 +201,30 @@ export function Navbar() {
                         <span className="text-sm">Xin chào, {userName}</span>
                       </div>
                     </div>
-                    <Button variant="outline" onClick={() => { setMobileMenuOpen(false); router.push('/profile'); }}>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        router.push('/profile');
+                      }}
+                    >
                       <User size={16} /> Thông tin cá nhân
                     </Button>
-                    <Button variant="outline" onClick={() => { setMobileMenuOpen(false); router.push('/profile/change_password'); }}>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        router.push('/profile/change_password');
+                      }}
+                    >
                       <Settings size={16} /> Đổi mật khẩu
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        handleLogout();
+                      }}
                       className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950"
                     >
                       <LogOut size={16} /> Đăng xuất
@@ -173,10 +233,14 @@ export function Navbar() {
                 ) : (
                   <>
                     <Link href="/auth/login">
-                      <Button variant="outline" className="w-full">Đăng nhập</Button>
+                      <Button variant="outline" className="w-full">
+                        Đăng nhập
+                      </Button>
                     </Link>
                     <Link href="/auth/signup">
-                      <Button className="w-full bg-gray-900 text-white dark:bg-slate-100 dark:text-slate-900">Đăng ký</Button>
+                      <Button className="w-full bg-gray-900 text-white dark:bg-slate-100 dark:text-slate-900">
+                        Đăng ký
+                      </Button>
                     </Link>
                   </>
                 )}

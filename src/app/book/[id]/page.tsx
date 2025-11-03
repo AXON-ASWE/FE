@@ -9,12 +9,12 @@ import { cn } from '@/lib/utils';
 
 const doctor = {
   id: 1,
-  name: 'Dr. Sarah Johnson',
-  specialty: 'Neurologist',
+  name: 'Bác sĩ Sarah Johnson',
+  specialty: 'Thần kinh học',
   rating: 4.8,
-  experience: '12 years experience',
+  experience: '12 năm kinh nghiệm',
   price: 150,
-  department: 'Neurology',
+  department: 'Khoa Thần kinh',
   image:
     'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
 };
@@ -25,27 +25,27 @@ export default function BookAppointmentPage() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   const timeSlots = [
-    '09:00 AM',
-    '09:30 AM',
-    '10:00 AM',
-    '10:30 AM',
-    '11:00 AM',
-    '11:30 AM',
-    '02:00 PM',
-    '02:30 PM',
-    '03:00 PM',
-    '03:30 PM',
-    '04:00 PM',
-    '04:30 PM',
-    '05:00 PM',
-    '05:30 PM',
+    '09:00',
+    '09:30',
+    '10:00',
+    '10:30',
+    '11:00',
+    '11:30',
+    '14:00',
+    '14:30',
+    '15:00',
+    '15:30',
+    '16:00',
+    '16:30',
+    '17:00',
+    '17:30',
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Main content */}
+      {/* Nội dung chính */}
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Doctor Info */}
+        {/* Thông tin bác sĩ */}
         <Card className="border border-gray-200 shadow-sm">
           <CardContent className="p-6 text-center">
             <div className="flex justify-center mb-4">
@@ -68,7 +68,7 @@ export default function BookAppointmentPage() {
 
             <div className="mt-6 border-t pt-4 space-y-2 text-left">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Department</span>
+                <span className="text-gray-600">Khoa</span>
                 <span className="font-medium text-gray-900">
                   {doctor.department}
                 </span>
@@ -77,7 +77,7 @@ export default function BookAppointmentPage() {
           </CardContent>
         </Card>
 
-        {/* Date & Time */}
+        {/* Chọn ngày & giờ */}
         <Card className="border border-gray-200 shadow-sm md:col-span-2">
           <CardContent className="p-6">
             <Button
@@ -85,19 +85,19 @@ export default function BookAppointmentPage() {
               className="mb-4 text-gray-600 flex items-center gap-2"
               onClick={() => router.back()}
             >
-              <ArrowLeft className="w-4 h-4" /> Back
+              <ArrowLeft className="w-4 h-4" /> Quay lại
             </Button>
 
             <h3 className="text-xl font-semibold text-gray-900 mb-6">
-              Select Date & Time
+              Chọn ngày và giờ khám
             </h3>
 
             <div className="space-y-6">
-              {/* Choose Date */}
+              {/* Chọn ngày */}
               <div>
                 <h4 className="flex items-center gap-2 text-gray-700 font-medium mb-3">
                   <Calendar className="w-4 h-4 text-blue-600" />
-                  Choose Date
+                  Chọn ngày
                 </h4>
 
                 <input
@@ -108,11 +108,11 @@ export default function BookAppointmentPage() {
                 />
               </div>
 
-              {/* Choose Time Slot */}
+              {/* Chọn khung giờ */}
               <div>
                 <h4 className="flex items-center gap-2 text-gray-700 font-medium mb-3">
                   <Clock className="w-4 h-4 text-blue-600" />
-                  Choose Time Slot
+                  Chọn khung giờ
                 </h4>
 
                 <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
@@ -133,12 +133,13 @@ export default function BookAppointmentPage() {
                 </div>
               </div>
 
+              {/* Nút xác nhận */}
               <div className="pt-6">
                 <Button
                   disabled={!selectedDate || !selectedTime}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
-                  Confirm Appointment
+                  Xác nhận lịch hẹn
                 </Button>
               </div>
             </div>

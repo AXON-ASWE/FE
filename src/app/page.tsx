@@ -139,14 +139,47 @@ const doctors = [
 
 export default function Home() {
   const router = useRouter();
-  const [searchText, setSearchText] = useState('');
+  const [symptomInput, setSymptomInput] = useState('');
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+
   const [department, setDepartment] = useState('Tất cả');
   const [page, setPage] = useState(1);
   const perPage = 9;
 
+  // Gợi ý triệu chứng tiếng Việt
+  const suggestions = [
+    'Đau đầu',
+    'Sốt',
+    'Đau bụng',
+    'Đau ngực',
+    'Mệt mỏi',
+    'Buồn nôn',
+    'Đau lưng',
+  ];
+
+  const filteredSuggestions = suggestions.filter(
+    (s) =>
+      s.toLowerCase().includes(symptomInput.toLowerCase()) &&
+      !selectedSymptoms.includes(s)
+  );
+
+  const handleSelectSuggestion = (label: string) => {
+    if (!selectedSymptoms.includes(label)) {
+      setSelectedSymptoms([...selectedSymptoms, label]);
+    }
+    setSymptomInput('');
+    setShowDropdown(false);
+  };
+
+  const removeSymptom = (symptom: string) => {
+    setSelectedSymptoms(selectedSymptoms.filter((s) => s !== symptom));
+  };
+
   const handleSearch = () => {
-    if (!searchText.trim()) return;
-    router.push(`/find?q=${encodeURIComponent(searchText)}`);
+    if (selectedSymptoms.length === 0) return;
+    const query = selectedSymptoms.join(',');
+    router.push(`/find?q=${encodeURIComponent(query)}`);
   };
 
   // Lọc theo chuyên khoa
@@ -176,15 +209,20 @@ export default function Home() {
             sức khỏe chất lượng ngay trong tầm tay.
           </p>
 
-          <div className="max-w-2xl mx-auto">
-            <div className="flex gap-2 bg-white rounded-lg p-2 shadow-lg">
-              <div className="flex items-center flex-1 px-3">
+          {/* Ô tìm kiếm có chọn nhiều triệu chứng */}
+          <div className="max-w-2xl mx-auto relative text-left">
+            <div className="flex gap-2 bg-white rounded-lg p-2 shadow-lg relative">
+              <div className="flex items-center flex-1 px-3 relative">
                 <Search className="h-5 w-5 text-gray-400 mr-2" />
                 <Input
                   type="text"
-                  placeholder="Nhập triệu chứng của bạn (ví dụ: đau đầu, sốt...)"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
+                  placeholder="Nhập triệu chứng (ví dụ: đau đầu, sốt...)"
+                  value={symptomInput}
+                  onChange={(e) => {
+                    setSymptomInput(e.target.value);
+                    setShowDropdown(true);
+                  }}
+                  onFocus={() => setShowDropdown(true)}
                   className="border-0 focus-visible:ring-0 text-gray-900 placeholder:text-gray-500"
                 />
               </div>
@@ -195,6 +233,41 @@ export default function Home() {
                 Tìm kiếm
               </Button>
             </div>
+
+            {/* Dropdown gợi ý */}
+            {showDropdown && filteredSuggestions.length > 0 && (
+              <ul className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-56 overflow-y-auto">
+                {filteredSuggestions.map((item) => (
+                  <li
+                    key={item}
+                    onClick={() => handleSelectSuggestion(item)}
+                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-gray-700"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* Tag triệu chứng đã chọn */}
+            {selectedSymptoms.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedSymptoms.map((symptom) => (
+                  <span
+                    key={symptom}
+                    className="bg-blue-600 text-white text-sm px-3 py-1 rounded-full flex items-center gap-2"
+                  >
+                    {symptom}
+                    <button
+                      onClick={() => removeSymptom(symptom)}
+                      className="text-white hover:text-gray-200"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
