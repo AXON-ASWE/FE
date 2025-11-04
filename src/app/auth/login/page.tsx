@@ -1,8 +1,7 @@
-import LoginScreen from '@/screens/LoginScreen';
-export const metadata = {
-  title: 'Login | Acme',
-  description: 'Your admin panel',
-};
+'use client';
+
+import { AuthForm } from '@/components/widgets/auth/AuthForm';
+
 export default function LoginPage() {
-  return <LoginScreen />;
+  return <AuthForm />;
 }

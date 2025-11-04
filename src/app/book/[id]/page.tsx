@@ -13,7 +13,6 @@ const doctor = {
   specialty: 'Thần kinh học',
   rating: 4.8,
   experience: '12 năm kinh nghiệm',
-  price: 150,
   department: 'Khoa Thần kinh',
   image:
     'https://images.pexels.com/photos/5215024/pexels-photo-5215024.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop',
@@ -138,6 +137,13 @@ export default function BookAppointmentPage() {
                 <Button
                   disabled={!selectedDate || !selectedTime}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => {
+                    router.push(
+                      `/appointment-success?doctor=${encodeURIComponent(doctor.name)}&department=${encodeURIComponent(
+                        doctor.department
+                      )}&specialty=${encodeURIComponent(doctor.specialty)}&date=${selectedDate}&time=${selectedTime}`
+                    );
+                  }}
                 >
                   Xác nhận lịch hẹn
                 </Button>

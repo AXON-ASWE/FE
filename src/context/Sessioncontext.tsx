@@ -1,68 +1,95 @@
-"use client";
+'use client';
 
-import { getAuthenticatedInfo } from "@/app/api/user"; // Use API from the api folder
-import { usePathname, useRouter } from "next/navigation";
-import { createContext, Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import { getAuthenticatedInfo } from '@/app/api/user';
+import { usePathname, useRouter } from 'next/navigation';
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
-interface userSession {
-    id: string;
-    name: string;
-    email: string;
-    avaUrl: string;
+interface UserSession {
+  id: string;
+  name: string;
+  email: string;
+  avaUrl?: string;
+  role: 'user' | 'doctor' | 'admin' | string; // Thêm role
 }
 
 interface SessionContextType {
-    status: "loading" | "authenticated" | "unauthenticated";
-    session: null | userSession;
-    setSession: Dispatch<SetStateAction<null | userSession>>;
+  status: 'loading' | 'authenticated' | 'unauthenticated';
+  session: UserSession | null;
+  setSession: Dispatch<SetStateAction<UserSession | null>>;
 }
 
 const SessionContext = createContext<SessionContextType>({
-    status: "loading",
-    session: null,
-    setSession: () => {},
+  status: 'loading',
+  session: null,
+  setSession: () => {},
 });
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
-    const [status, setStatus] = useState<"loading" | "authenticated" | "unauthenticated">("loading");
-    const [session, setSession] = useState<null | userSession>(null);
-    const pathName = usePathname();
-    const router = useRouter();
+  const [status, setStatus] = useState<
+    'loading' | 'authenticated' | 'unauthenticated'
+  >('loading');
+  const [session, setSession] = useState<UserSession | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const infoRes = await getAuthenticatedInfo(); // Use the API function
-                if (infoRes.status !== 200) {
-                    router.push("/auth/login");                 
-                    setStatus("unauthenticated");
-                    return;
-                }
+  const pathname = usePathname();
+  const router = useRouter();
 
-                const session = { ...infoRes.data };
-                setSession(session);
-                setStatus("authenticated");
-            } catch (error) {
-                console.error("Error fetching user info:", error);
-                if (pathName !== "/auth/login" && pathName !== "/auth/signup") {
-                    router.push("/auth/login");                 
-                    setStatus("unauthenticated");
-                    return;
-                }             
-                setStatus("unauthenticated");
-            }
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const res = await getAuthenticatedInfo();
+
+        //Không hợp lệ
+        if (!res || res.status !== 200) {
+          setSession(null);
+          setStatus('unauthenticated');
+
+          if (!pathname.startsWith('/auth')) {
+            router.push('/auth/login');
+          }
+          return;
+        }
+
+        const raw = res.data;
+
+        const userData: UserSession = {
+          id: raw.id ?? '',
+          name: raw.name ?? 'Người dùng',
+          email: raw.email ?? '',
+          avaUrl: raw.avaUrl ?? '',
+          role: raw.role ?? 'user', // fallback
         };
 
-        fetchData();
-    }, [pathName]);
+        setSession(userData);
+        setStatus('authenticated');
+      } catch (error) {
+        console.error('Error fetching user info:', error);
 
-    return (
-        <SessionContext.Provider value={{ status, session, setSession }}>
-            {children}
-        </SessionContext.Provider>
-    );
+        setSession(null);
+        setStatus('unauthenticated');
+
+        if (!pathname.startsWith('/auth')) {
+          router.push('/auth/login');
+        }
+      }
+    };
+
+    fetchUserInfo();
+  }, [pathname]);
+
+  return (
+    <SessionContext.Provider value={{ status, session, setSession }}>
+      {children}
+    </SessionContext.Provider>
+  );
 }
 
 export function useSession() {
-    return useContext(SessionContext);
+  return useContext(SessionContext);
 }

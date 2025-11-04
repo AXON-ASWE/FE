@@ -1,18 +1,19 @@
-import { useState } from "react";
-import { Input } from "../ui/Input";
-import { Label } from "../ui/Label";
-import { EyeIcon } from "../icons";
+import { useState } from 'react';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { EyeIcon } from '../icons';
 
 type ValidRule = {
-  rule: RegExp | null; // Validation rule as a regex
-  message: string; // Error message if the rule is not satisfied
+  rule: RegExp | null;
+  message: string;
 };
 
 type Props = React.InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   icon?: React.ReactNode;
-  children?: React.ReactNode; // Allow children for additional elements
-  validRules?: ValidRule[]; // Array of validation rules
+  children?: React.ReactNode;
+  validRules?: ValidRule[];
+  error?: string; // ✅ thêm
 };
 
 export const TextField = ({
@@ -22,62 +23,65 @@ export const TextField = ({
   id,
   children,
   validRules = [],
+  error, // ✅ nhận error từ ngoài
   ...props
 }: Props) => {
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
-  const [errorMessages, setErrorMessages] = useState<string | null>(null); // State to store error messages
-  const isPasswordField = type === "password";
-  const inputType = isPasswordField && showPassword ? "text" : type; // Toggle between "text" and "password"
-  const inputClassNames = `flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
-    icon ? "pl-10" : ""
-  }`;
+  const [showPassword, setShowPassword] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const isPasswordField = type === 'password';
+  const inputType = isPasswordField && showPassword ? 'text' : type;
 
   const handleValidation = (value: string) => {
-    const error = validRules.find((rule) => rule.rule && !rule.rule.test(value)); // Find the first rule that fails
-    setErrorMessages(error ? error.message : null); // Set the first error message or null if no errors
+    const err = validRules.find((rule) => rule.rule && !rule.rule.test(value));
+    setLocalError(err ? err.message : null);
   };
+
+  // ✅ Ưu tiên error được truyền từ ngoài
+  const displayError = error || localError;
 
   return (
     <div className="space-y-2 flex flex-col">
-      {/* Label and optional children */}
       <div className="flex justify-between">
         <Label
           className={`text-sm font-medium leading-none ${
-            errorMessages ? "text-red-500" : ""
+            displayError ? 'text-red-500' : ''
           }`}
           htmlFor={id}
         >
           {label}
         </Label>
+
         {children && <div className="ml-auto">{children}</div>}
       </div>
 
-      {/* Input field with optional icon */}
       <div className="relative inline-block h-9 w-full">
         {icon && (
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             {icon}
           </span>
         )}
+
         <Input
           id={id}
           type={inputType}
-          className={inputClassNames}
+          className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 ${
+            icon ? 'pl-10' : ''
+          } ${displayError ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
           {...props}
           onChange={(e) => {
-            props.onChange?.(e); // Call the parent onChange handler
-            handleValidation(e.target.value); // Validate the input
+            props.onChange?.(e);
+            handleValidation(e.target.value);
           }}
         />
 
-        {/* Password visibility toggle button */}
         {isPasswordField && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+              className="inline-flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
               aria-label="Toggle password visibility"
-              onClick={() => setShowPassword((prev) => !prev)} // Toggle password visibility
+              onClick={() => setShowPassword((prev) => !prev)}
             >
               <EyeIcon />
             </button>
@@ -85,10 +89,9 @@ export const TextField = ({
         )}
       </div>
 
-      {/* Error messages */}
-      {errorMessages && (
+      {displayError && (
         <div className="text-sm text-red-500">
-          <p>{errorMessages}</p>
+          <p>{displayError}</p>
         </div>
       )}
     </div>

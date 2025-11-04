@@ -1,167 +1,213 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { FormMessageAlert } from "../../ui/FormMessageAlert"; // Import success message component
-import { CustomButton } from "../../ui/CustomButton";
-import { TextField } from "../../blocks/TextField";
-import { MailIcon, LockIcon, GoogleIcon, MicrosoftIcon } from "../../icons";
-import { signup } from "@/app/api/auth";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { FormMessageAlert } from '../../ui/FormMessageAlert';
+import { CustomButton } from '../../ui/CustomButton';
+import { TextField } from '../../blocks/TextField';
+import { MailIcon, LockIcon } from '../../icons';
+
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '../../ui/card';
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../ui/select';
 
 export const SignUpForm = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // State for success message
-  const [loading, setLoading] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
   const router = useRouter();
 
-  const passwordRules = [
-    { rule: /[A-Z]/, message: "Mix of uppercase & lowercase letters" },
-    { rule: /.{8,}/, message: "Minimum 8 characters long" },
-    { rule: /\d/, message: "Contain at least 1 number" },
-  ];
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    gender: '',
+    dateOfBirth: '',
+    password: '',
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [formError, setFormError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.fullName) newErrors.fullName = 'Họ tên không được để trống';
+    if (!formData.email) newErrors.email = 'Email không được để trống';
+    else if (!formData.email.includes('@'))
+      newErrors.email = 'Email không hợp lệ';
+
+    if (!formData.phone) newErrors.phone = 'Số điện thoại không được để trống';
+    if (!formData.gender) newErrors.gender = 'Vui lòng chọn giới tính';
+    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Chọn ngày sinh';
+
+    if (!formData.password) newErrors.password = 'Mật khẩu không được để trống';
+    else if (formData.password.length < 8)
+      newErrors.password = 'Mật khẩu phải ít nhất 8 ký tự';
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsDisabled(true);
+    setFormError('');
+    setSuccess('');
+
+    if (!validate()) return;
+
     setLoading(true);
-    setError("");
-    setSuccess(""); // Clear previous success message
 
-    try {
-      const response = await signup({ name, email, password });
-      console.log("Signup successful:", response);
-      setSuccess("Signup successful! Redirecting to dashboard...");
-      setTimeout(() => router.push("/dashboard/home"), 2000); // Redirect after 2 seconds
-    } catch (err: any) {
-      setError(err.message);
-    }
+    // ✅ Fake success
+    setTimeout(() => {
+      setSuccess('Tạo tài khoản thành công! Đang chuyển hướng...');
+      setLoading(false);
 
-    setLoading(false);
-    setIsDisabled(false);
+      // ✅ Fake redirect
+      setTimeout(() => router.push('/dashboard/home'), 1200);
+    }, 1000);
   };
 
   return (
-    <div className="w-full h-full">
-      <div className="flex flex-col space-y-1.5 p-6">
-        <h3 className="text-xl font-semibold leading-none tracking-tight">Sign up</h3>
-        <p className="text-sm text-zinc-500">
-          Already have an account?{" "}
-          <a href="/auth/login" className="text-foreground underline">
-            Log in
-          </a>
-        </p>
-      </div>
-      <form onSubmit={handleSubmit} noValidate className="p-6 pt-0 flex flex-col gap-4">
-        {/* Name Field */}
-        <TextField
-          label="Name"
-          type="text"
-          id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          validRules={[
-            { rule: /.+/, message: "Name is required." },
-          ]}
-        />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
+      <Card className="w-full max-w-md border shadow-sm">
+        {/* HEADER */}
+        <CardHeader className="text-center space-y-1 pt-8">
+          <CardTitle className="text-lg font-semibold">
+            Đăng ký tài khoản
+          </CardTitle>
+          <CardDescription className="text-sm text-gray-500">
+            Tạo tài khoản mới để sử dụng dịch vụ
+          </CardDescription>
+        </CardHeader>
 
-        {/* Email Field */}
-        <TextField
-          label="Email"
-          type="email"
-          id="email"
-          icon={<MailIcon />}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          validRules={[
-            { rule: /.+/, message: "Email is required." },
-            { rule: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address" },
-          ]}
-        />
-
-        {/* Password Field */}
-        <TextField
-          label="Password"
-          type="password"
-          id="password"
-          icon={<LockIcon />}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          validRules={[
-            { rule: /.+/, message: "Password is required." },
-            { rule: /[A-Z]/, message: "Password does not meet requirements." },
-            { rule: /.{8,}/, message: "Password does not meet requirements." },
-            { rule: /\d/, message: "Password does not meet requirements." },
-          ]}
-        />
-
-        {/* Password Rules */}
-        <ul className="text-sm space-y-1">
-          {passwordRules.map((rule, index) => (
-            <li
-              key={index}
-              className={
-                rule.rule.test(password) ? "text-green-500" : "text-muted-foreground"
+        <CardContent className="px-8 pb-8">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {/* Họ tên */}
+            <TextField
+              label="Họ và tên"
+              id="fullName"
+              placeholder="Nguyễn Văn A"
+              value={formData.fullName}
+              onChange={(e) =>
+                setFormData({ ...formData, fullName: e.target.value })
               }
+              error={errors.fullName}
+            />
+
+            {/* Email */}
+            <TextField
+              label="Email"
+              type="email"
+              id="email"
+              icon={<MailIcon />}
+              placeholder="example@mail.com"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              error={errors.email}
+            />
+
+            {/* Số điện thoại */}
+            <TextField
+              label="Số điện thoại"
+              type="tel"
+              id="phone"
+              placeholder="090xxxxxxx"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              error={errors.phone}
+            />
+
+            {/* Giới tính */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">Giới tính</label>
+              <Select
+                value={formData.gender}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, gender: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn giới tính" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Nam</SelectItem>
+                  <SelectItem value="female">Nữ</SelectItem>
+                  <SelectItem value="other">Khác</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.gender && (
+                <p className="text-sm text-red-500">{errors.gender}</p>
+              )}
+            </div>
+
+            {/* Ngày sinh */}
+            <TextField
+              label="Ngày sinh"
+              type="date"
+              id="dateOfBirth"
+              value={formData.dateOfBirth}
+              onChange={(e) =>
+                setFormData({ ...formData, dateOfBirth: e.target.value })
+              }
+              error={errors.dateOfBirth}
+            />
+
+            {/* Mật khẩu */}
+            <TextField
+              label="Mật khẩu"
+              type="password"
+              id="password"
+              icon={<LockIcon />}
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              error={errors.password}
+            />
+
+            {formError && <FormMessageAlert message={formError} />}
+            {success && <FormMessageAlert message={success} success />}
+
+            <CustomButton
+              type="submit"
+              className="w-full text-white"
+              style={{ backgroundColor: '#007BFF' }}
+              spinnerIcon={loading}
+              disabled={loading}
             >
-              • {rule.message}
-            </li>
-          ))}
-        </ul>
+              {loading ? 'Đang tạo tài khoản...' : 'Đăng ký'}
+            </CustomButton>
+          </form>
 
-        {success && <FormMessageAlert message={success} success={true}/>} {/* Display success message */}
-        {error && <FormMessageAlert message={error} />} {/* Display error message */}
-
-        {/* Submit CustomButton */}
-        <CustomButton
-          type="submit"
-          className="w-full bg-primary text-primary-foreground"
-          spinnerIcon={loading}
-          disabled={loading || isDisabled}
-        >
-          {loading ? "Creating account..." : "Create account"}
-        </CustomButton>
-        <div className="flex items-center gap-4 text-muted-foreground text-sm">
-          <div className="h-px flex-1 bg-foreground" />
-          Or continue with
-          <div className="h-px flex-1 bg-foreground" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <CustomButton
-            className=" w-full border hover:bg-accent hover:text-accent-foreground"
-            onClick={() => console.log("Google login")}
-          >
-            <GoogleIcon className="mr-2" />
-            Google
-          </CustomButton>
-          <CustomButton
-            className="!text-foreground w-full border hover:bg-accent hover:text-accent-foreground"
-            onClick={() => console.log("Microsoft login")}
-          >
-            <MicrosoftIcon className="mr-2" />
-            Microsoft
-          </CustomButton>
-        </div>
-      </form>
-      <p className="items-center p-6 inline-bloc bg-muted rounded-b-xl border-t pt-6 text-xs text-muted-foreground">
-        By signing up, you agree to our{" "}
-        <a href="#" className="font-medium text-foreground underline">
-          Terms of Use
-        </a>{" "}
-        and{" "}
-        <a href="#" className="font-medium text-foreground underline">
-          Privacy Policy
-        </a>
-        . Need help?{" "}
-        <a href="#" className="font-medium text-foreground underline">
-          Get in touch
-        </a>
-        .
-      </p>
+          <div className="mt-6 text-center text-sm text-gray-600">
+            Đã có tài khoản?{' '}
+            <a
+              href="/auth/login"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Đăng nhập ngay
+            </a>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

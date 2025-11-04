@@ -13,15 +13,8 @@ import {
   Heart,
   Home,
 } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from '@/components/ui/navigation-menu';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,32 +23,77 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { useSession } from '@/context/Sessioncontext';
+import React from 'react';
 
-const menuItems = [
-  {
-    title: 'Trang chủ',
-    href: '/',
-    icon: <Home className="h-4 w-4" />,
-  },
-  {
-    title: 'Lịch hẹn của tôi',
-    href: '/appointments',
-    icon: <Calendar className="h-4 w-4" />,
-  },
-];
+type Role = 'user' | 'doctor' | 'admin';
+
+interface MenuItem {
+  title: string;
+  href: string;
+  icon: React.ReactNode;
+}
+
+const menusByRole: Record<Role, MenuItem[]> = {
+  user: [
+    {
+      title: 'Trang chủ',
+      href: '/',
+      icon: <Home className="h-4 w-4" />,
+    },
+    {
+      title: 'Lịch hẹn của tôi',
+      href: '/appointments',
+      icon: <Calendar className="h-4 w-4" />,
+    },
+  ],
+  doctor: [
+    {
+      title: 'Trang chủ',
+      href: '/',
+      icon: <Home className="h-4 w-4" />,
+    },
+    {
+      title: 'Quản lý lịch khám',
+      href: '/doctor/schedule',
+      icon: <Calendar className="h-4 w-4" />,
+    },
+  ],
+  admin: [
+    {
+      title: 'Trang chủ',
+      href: '/',
+      icon: <Home className="h-4 w-4" />,
+    },
+    {
+      title: 'Quản lý người dùng',
+      href: '/admin/users',
+      icon: <User className="h-4 w-4" />,
+    },
+    {
+      title: 'Quản lý bác sĩ',
+      href: '/admin/doctors',
+      icon: <User className="h-4 w-4" />,
+    },
+  ],
+};
 
 export function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+
   const { session, status, setSession } = useSession();
+
+  const role = (session?.role as Role) ?? 'user';
+  const menuItems = menusByRole[role];
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(
     null
   );
+
+  if (pathname.startsWith('/auth')) return null;
 
   const handleLogout = () => {
     Cookies.remove('access_token', { path: '/' });
