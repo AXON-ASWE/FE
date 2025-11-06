@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useSession } from '@/context/Sessioncontext';
 import { useRouter } from 'next/navigation';
 import { Phone, UserCircle } from 'lucide-react';
-
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
@@ -14,7 +13,6 @@ type DoctorAppointmentDTO = {
   endTime: string;
   status: string;
   notes?: string;
-
   patient: {
     id: number;
     name: string;
@@ -29,13 +27,7 @@ export default function DoctorDashboard() {
   const [appointments, setAppointments] = useState<DoctorAppointmentDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!session) return;
-    if (session.role !== 'doctor') {
-      router.push('/');
-    }
-  }, [session]);
-
+  // Kiểm tra session.role => logic này đã có trong DoctorLayout, không cần ở đây nữa
   useEffect(() => {
     if (!session?.id) return;
 
@@ -81,7 +73,6 @@ export default function DoctorDashboard() {
             },
           },
         ];
-
         setAppointments(res);
       } finally {
         setLoading(false);
@@ -91,13 +82,11 @@ export default function DoctorDashboard() {
     fetchData();
   }, [session?.id]);
 
-  if (!session) return <div>Đang kiểm tra phiên...</div>;
   if (loading) return <div>Đang tải dữ liệu...</div>;
 
   return (
-    <div className="space-y-6 p-6 min-h-screen bg-gray-50">
-      <h1 className="text-3xl font-bold">Chào mừng, Bác sĩ {session.name}</h1>
-
+    <>
+      {/* ✅ Thống kê nhanh */}
       <div className="grid grid-cols-4 gap-4">
         <StatCard title="Tổng lịch hẹn" value="8" />
         <StatCard title="Sắp tới" value="4" />
@@ -105,6 +94,7 @@ export default function DoctorDashboard() {
         <StatCard title="Bệnh nhân" value="3" />
       </div>
 
+      {/* ✅ Lịch hẹn hôm nay */}
       <Card className="shadow-sm border border-gray-200">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">
@@ -124,7 +114,7 @@ export default function DoctorDashboard() {
           ))}
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }
 
@@ -152,10 +142,8 @@ function AppointmentItem({
 }) {
   return (
     <div className="flex justify-between items-center p-4 rounded-lg border bg-white shadow-sm">
-      {/* Left */}
       <div className="flex items-center gap-3">
         <UserCircle className="w-10 h-10 text-gray-400" />
-
         <div className="space-y-1">
           <p className="font-medium">{patient.name}</p>
           <p className="text-sm text-gray-500">{time}</p>
@@ -170,7 +158,6 @@ function AppointmentItem({
         </div>
       </div>
 
-      {/* Right */}
       <Badge className="bg-green-100 text-green-700 border border-green-300">
         {status}
       </Badge>

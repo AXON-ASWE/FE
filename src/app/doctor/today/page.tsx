@@ -4,15 +4,15 @@ import { useEffect, useState } from 'react';
 import { useSession } from '@/context/Sessioncontext';
 import { useRouter } from 'next/navigation';
 import { Phone, UserCircle } from 'lucide-react';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
-// ✅ DTO chuẩn cho Doctor Dashboard
 type DoctorAppointmentDTO = {
   appointmentId: number;
   startTime: string;
   endTime: string;
   status: string;
   notes?: string;
-
   patient: {
     id: number;
     name: string;
@@ -27,15 +27,7 @@ export default function DoctorDashboard() {
   const [appointments, setAppointments] = useState<DoctorAppointmentDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Chặn role khác vào page doctor
-  useEffect(() => {
-    if (!session) return;
-    if (session.role !== 'doctor') {
-      router.push('/');
-    }
-  }, [session]);
-
-  // ✅ Mock
+  // Kiểm tra session.role => logic này đã có trong DoctorLayout, không cần ở đây nữa
   useEffect(() => {
     if (!session?.id) return;
 
@@ -81,7 +73,6 @@ export default function DoctorDashboard() {
             },
           },
         ];
-
         setAppointments(res);
       } finally {
         setLoading(false);
@@ -91,20 +82,19 @@ export default function DoctorDashboard() {
     fetchData();
   }, [session?.id]);
 
-  if (!session) return <div>Đang kiểm tra phiên...</div>;
-  if (loading) return <div>Đang tải...</div>;
+  if (loading) return <div>Đang tải dữ liệu...</div>;
 
   return (
-    <div className="space-y-6 p-6 min-h-screen bg-gray-50">
-      <h1 className="text-3xl font-bold">Chào mừng, Bác sĩ {session.name}</h1>
+    <>
+      {/* ✅ Lịch hẹn hôm nay */}
+      <Card className="shadow-sm border border-gray-200">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold">
+            Lịch hẹn hôm nay ({appointments.length})
+          </CardTitle>
+        </CardHeader>
 
-      {/* ✅ KHUNG TRẮNG LIST HẸN */}
-      <div className="bg-white p-6 rounded-xl shadow-sm">
-        <h2 className="text-xl font-semibold mb-4">
-          Lịch hẹn hôm nay ({appointments.length})
-        </h2>
-
-        <div className="space-y-4">
+        <CardContent className="space-y-4">
           {appointments.map((apm) => (
             <AppointmentItem
               key={apm.appointmentId}
@@ -114,13 +104,12 @@ export default function DoctorDashboard() {
               status={apm.status}
             />
           ))}
-        </div>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </>
   );
 }
 
-// ✅ item theo UI đẹp + icon
 function AppointmentItem({
   patient,
   time,
@@ -133,12 +122,10 @@ function AppointmentItem({
   status: string;
 }) {
   return (
-    <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
+    <div className="flex justify-between items-center p-4 rounded-lg border bg-white shadow-sm">
       <div className="flex items-center gap-3">
-        {/* Avatar icon */}
-        <UserCircle className="w-8 h-8 text-gray-400" />
-
-        <div>
+        <UserCircle className="w-10 h-10 text-gray-400" />
+        <div className="space-y-1">
           <p className="font-medium">{patient.name}</p>
           <p className="text-sm text-gray-500">{time}</p>
 
@@ -152,10 +139,9 @@ function AppointmentItem({
         </div>
       </div>
 
-      {/* Status pill */}
-      <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm">
+      <Badge className="bg-green-100 text-green-700 border border-green-300">
         {status}
-      </span>
+      </Badge>
     </div>
   );
 }
