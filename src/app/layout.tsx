@@ -1,15 +1,10 @@
+// app/layout.tsx
 import './globals.css';
-import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { Navbar } from '@/components/blocks/bars/NavBar';
-import { Toaster } from '@/components/ui/toaster';
+import { SessionProvider } from '@/context/Sessioncontext';
+import UILayout from './ui-layout';
 
 const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'HealthCare+',
-  description: 'A healthcare booking app',
-};
 
 export default function RootLayout({
   children,
@@ -19,9 +14,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar />
-        {children}
-        <Toaster />
+        <SessionProvider>
+          <UILayout>{children}</UILayout>
+        </SessionProvider>
       </body>
     </html>
   );

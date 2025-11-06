@@ -27,7 +27,7 @@ import Cookies from 'js-cookie';
 import { useSession } from '@/context/Sessioncontext';
 import React from 'react';
 
-type Role = 'user' | 'doctor' | 'admin';
+type Role = 'patient' | 'doctor' | 'admin';
 
 interface MenuItem {
   title: string;
@@ -36,7 +36,7 @@ interface MenuItem {
 }
 
 const menusByRole: Record<Role, MenuItem[]> = {
-  user: [
+  patient: [
     {
       title: 'Trang chủ',
       href: '/',
@@ -48,50 +48,20 @@ const menusByRole: Record<Role, MenuItem[]> = {
       icon: <Calendar className="h-4 w-4" />,
     },
   ],
-  doctor: [
-    {
-      title: 'Trang chủ',
-      href: '/',
-      icon: <Home className="h-4 w-4" />,
-    },
-    {
-      title: 'Quản lý lịch khám',
-      href: '/doctor/schedule',
-      icon: <Calendar className="h-4 w-4" />,
-    },
-  ],
-  admin: [
-    {
-      title: 'Trang chủ',
-      href: '/',
-      icon: <Home className="h-4 w-4" />,
-    },
-    {
-      title: 'Quản lý người dùng',
-      href: '/admin/users',
-      icon: <User className="h-4 w-4" />,
-    },
-    {
-      title: 'Quản lý bác sĩ',
-      href: '/admin/doctors',
-      icon: <User className="h-4 w-4" />,
-    },
-  ],
+  doctor: [],
+  admin: [],
 };
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { session, status, setSession } = useSession();
+  const { session, setSession } = useSession();
 
-  const role = (session?.role as Role) ?? 'user';
-  const menuItems = menusByRole[role];
+  const role = (session?.role as Role) ?? 'patient';
+  const menuItems = menusByRole[role] ?? [];
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(
-    null
-  );
 
   if (pathname.startsWith('/auth')) return null;
 
@@ -104,7 +74,7 @@ export function Navbar() {
     router.push('/auth/login');
   };
 
-  const isLoggedIn = status === 'authenticated';
+  const isLoggedIn = Boolean(session);
   const userName = session?.name || 'Người dùng';
 
   return (
@@ -119,19 +89,21 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* DESKTOP MENU */}
-          <div className="hidden lg:flex items-center gap-8">
-            {menuItems.map((item) => (
-              <Link
-                key={item.title}
-                href={item.href}
-                className="flex items-center gap-2 text-blue-600 font-medium"
-              >
-                <span className="text-blue-600">{item.icon}</span>
-                {item.title}
-              </Link>
-            ))}
-          </div>
+          {/* DESKTOP MENU – chỉ hiển thị khi là bệnh nhân */}
+          {role === 'patient' && (
+            <div className="hidden lg:flex items-center gap-8">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="flex items-center gap-2 text-blue-600 font-medium"
+                >
+                  <span className="text-blue-600">{item.icon}</span>
+                  {item.title}
+                </Link>
+              ))}
+            </div>
+          )}
 
           {/* RIGHT SIDE (User / Auth Buttons) */}
           <div className="hidden lg:flex items-center gap-3">
@@ -186,17 +158,10 @@ export function Navbar() {
             ) : (
               <>
                 <Link href="/auth/login">
-                  <Button
-                    variant="ghost"
-                    className="text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700"
-                  >
-                    Đăng nhập
-                  </Button>
+                  <Button variant="ghost">Đăng nhập</Button>
                 </Link>
                 <Link href="/auth/signup">
-                  <Button className="bg-gray-900 hover:bg-gray-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200 text-white">
-                    Đăng ký
-                  </Button>
+                  <Button className="bg-gray-900 text-white">Đăng ký</Button>
                 </Link>
               </>
             )}
@@ -216,7 +181,7 @@ export function Navbar() {
         </div>
 
         {/* MOBILE DROPDOWN MENU */}
-        {mobileMenuOpen && (
+        {mobileMenuOpen && role === 'patient' && (
           <div className="lg:hidden py-4 border-t border-gray-200 dark:border-slate-700 animate-in slide-in-from-top-2 duration-200">
             <div className="flex flex-col space-y-1">
               {menuItems.map((item) => (
@@ -229,60 +194,6 @@ export function Navbar() {
                   <span>{item.icon}</span> {item.title}
                 </Link>
               ))}
-              {/* Auth & Profile links for mobile */}
-              <div className="flex flex-col gap-2 pt-4 px-4 border-t border-gray-200 dark:border-slate-700 mt-2">
-                {isLoggedIn ? (
-                  <>
-                    <div className="mb-2 px-3 py-2 rounded-md bg-slate-800">
-                      <div className="flex items-center gap-2">
-                        <User size={16} className="text-muted-foreground" />
-                        <span className="text-sm">Xin chào, {userName}</span>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        router.push('/profile');
-                      }}
-                    >
-                      <User size={16} /> Thông tin cá nhân
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        router.push('/profile/change_password');
-                      }}
-                    >
-                      <Settings size={16} /> Đổi mật khẩu
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-950"
-                    >
-                      <LogOut size={16} /> Đăng xuất
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/auth/login">
-                      <Button variant="outline" className="w-full">
-                        Đăng nhập
-                      </Button>
-                    </Link>
-                    <Link href="/auth/signup">
-                      <Button className="w-full bg-gray-900 text-white dark:bg-slate-100 dark:text-slate-900">
-                        Đăng ký
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         )}

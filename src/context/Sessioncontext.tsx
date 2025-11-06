@@ -1,90 +1,89 @@
 'use client';
 
 import { getAuthenticatedInfo } from '@/app/api/user';
-import { usePathname, useRouter } from 'next/navigation';
-import {
-  createContext,
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 interface UserSession {
   id: string;
   name: string;
   email: string;
   avaUrl?: string;
-  role: 'user' | 'doctor' | 'admin' | string; // Thêm role
+  role: 'patient' | 'doctor' | 'admin' | string;
 }
 
 interface SessionContextType {
   status: 'loading' | 'authenticated' | 'unauthenticated';
   session: UserSession | null;
-  setSession: Dispatch<SetStateAction<UserSession | null>>;
+  setSession: (value: UserSession | null) => void;
+  logout: () => void;
 }
 
 const SessionContext = createContext<SessionContextType>({
   status: 'loading',
   session: null,
   setSession: () => {},
+  logout: () => {},
 });
 
 export function SessionProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<
     'loading' | 'authenticated' | 'unauthenticated'
   >('loading');
-  const [session, setSession] = useState<UserSession | null>(null);
 
-  const pathname = usePathname();
-  const router = useRouter();
+  const [session, setSessionState] = useState<UserSession | null>(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const res = await getAuthenticatedInfo();
 
-        //Không hợp lệ
         if (!res || res.status !== 200) {
-          setSession(null);
+          // ❌ BE rejected → clear
+          setSessionState(null);
+          localStorage.removeItem('session');
           setStatus('unauthenticated');
-
-          if (!pathname.startsWith('/auth')) {
-            router.push('/auth/login');
-          }
           return;
         }
 
         const raw = res.data;
-
         const userData: UserSession = {
           id: raw.id ?? '',
-          name: raw.name ?? 'Người dùng',
+          name: raw.name ?? 'User',
           email: raw.email ?? '',
           avaUrl: raw.avaUrl ?? '',
-          role: raw.role ?? 'user', // fallback
+          role: raw.role ?? 'patient',
         };
 
-        setSession(userData);
+        // ✅ save
+        setSessionState(userData);
+        localStorage.setItem('session', JSON.stringify(userData));
         setStatus('authenticated');
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-
-        setSession(null);
+      } catch {
+        setSessionState(null);
+        localStorage.removeItem('session');
         setStatus('unauthenticated');
-
-        if (!pathname.startsWith('/auth')) {
-          router.push('/auth/login');
-        }
       }
     };
 
     fetchUserInfo();
-  }, [pathname]);
+  }, []);
+
+  const setSession = (data: UserSession | null) => {
+    setSessionState(data);
+
+    if (data) {
+      localStorage.setItem('session', JSON.stringify(data));
+      setStatus('authenticated');
+    } else {
+      localStorage.removeItem('session');
+      setStatus('unauthenticated');
+    }
+  };
+
+  const logout = () => setSession(null);
 
   return (
-    <SessionContext.Provider value={{ status, session, setSession }}>
+    <SessionContext.Provider value={{ status, session, setSession, logout }}>
       {children}
     </SessionContext.Provider>
   );

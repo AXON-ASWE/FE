@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FormMessageAlert } from '../../ui/FormMessageAlert';
@@ -69,7 +67,12 @@ export const AuthForm = () => {
         description: 'Đang chuyển hướng...',
       });
 
-      setTimeout(() => router.push('/'), 500);
+      setTimeout(() => {
+        if (response.user.role === 'doctor') router.push('/doctor/dashboard');
+        else if (response.user.role === 'admin')
+          router.push('/admin/dashboard');
+        else router.push('/');
+      }, 500);
     } catch (err: any) {
       setFormError(err.message || 'Đăng nhập thất bại');
     }

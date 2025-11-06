@@ -25,13 +25,27 @@ export const signup = async (payload: SignUpPayload) => {
 //   }
 // };
 export const signin = async ({ email, password }: LoginPayload) => {
-  const demo: Record<string, 'user' | 'doctor' | 'admin'> = {
-    'patient@example.com': 'user',
-    'doctor@example.com': 'doctor',
-    'admin@example.com': 'admin',
+  const demo: Record<
+    string,
+    { role: 'patient' | 'doctor' | 'admin'; name: string }
+  > = {
+    'patient@example.com': {
+      role: 'patient',
+      name: 'Nguyễn Văn A',
+    },
+    'doctor@example.com': {
+      role: 'doctor',
+      name: 'Bác sĩ Trần Thị Bích',
+    },
+    'admin@example.com': {
+      role: 'admin',
+      name: 'Admin',
+    },
   };
 
-  if (!demo[email] || password !== '12345678') {
+  const user = demo[email];
+
+  if (!user || password !== '12345678') {
     throw new Error('Sai tài khoản hoặc mật khẩu');
   }
 
@@ -41,8 +55,8 @@ export const signin = async ({ email, password }: LoginPayload) => {
     user: {
       id: '123',
       email,
-      name: email.split('@')[0],
-      role: demo[email],
+      name: user.name,
+      role: user.role, // ✅ correct
     },
   };
 };
