@@ -1,0 +1,14 @@
+app
+ └── admin
+      ├── layout.tsx   ✅ wrap chung
+      ├── page.tsx     ✅ dashboard
+      ├── users
+      │    └── page.tsx
+      ├── doctors
+      │    └── page.tsx
+      ├── departments
+      │    └── page.tsx
+      ├── symptoms
+      │    └── page.tsx
+      ├── appointments
+      │    └── page.tsx
