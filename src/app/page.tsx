@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
+import { useSession } from '@/context/Sessioncontext'; // 👈 thêm dòng này
+
 import {
   Select,
   SelectTrigger,
@@ -139,10 +141,12 @@ const doctors = [
 
 export default function Home() {
   const router = useRouter();
+  const { session } = useSession(); // 👈 kiểm tra login
+  const isLoggedIn = !!session;
+
   const [symptomInput, setSymptomInput] = useState('');
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
-
   const [department, setDepartment] = useState('Tất cả');
   const [page, setPage] = useState(1);
   const perPage = 9;
@@ -309,6 +313,7 @@ export default function Home() {
               className="border border-gray-200 hover:shadow-xl transition-shadow"
             >
               <CardContent className="p-6">
+                {/* info bác sĩ */}
                 <div className="flex items-start gap-4 mb-4">
                   <img
                     src={doctor.image}
@@ -340,9 +345,16 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* 👇 logic khi ấn nút */}
                 <Button
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => router.push(`/book/${doctor.id}`)}
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      router.push('/auth/login'); // nếu chưa login → login
+                    } else {
+                      router.push(`/book/${doctor.id}`); // đã login → book
+                    }
+                  }}
                 >
                   Đặt lịch khám
                 </Button>
@@ -383,8 +395,8 @@ export default function Home() {
           </h2>
           <p className="text-gray-600 mb-8">
             Tìm bác sĩ phù hợp với triệu chứng của bạn và đặt lịch ngay hôm nay.
-            Dịch vụ y tế chất lượng chỉ cách bạn một cú nhấp chuột.
           </p>
+
           <div className="flex gap-4 justify-center flex-wrap">
             <Button
               className="bg-blue-600 hover:bg-blue-700 text-white px-8"
@@ -393,13 +405,16 @@ export default function Home() {
               Tìm bác sĩ
             </Button>
 
-            <Button
-              variant="outline"
-              className="border-gray-300 bg-white hover:bg-gray-50"
-              onClick={() => router.push('/appointments')}
-            >
-              Xem lịch hẹn của tôi
-            </Button>
+            {/* chỉ hiện khi đã đăng nhập */}
+            {isLoggedIn && (
+              <Button
+                variant="outline"
+                className="border-gray-300 bg-white hover:bg-gray-50"
+                onClick={() => router.push('/appointments')}
+              >
+                Xem lịch hẹn của tôi
+              </Button>
+            )}
           </div>
         </div>
       </section>

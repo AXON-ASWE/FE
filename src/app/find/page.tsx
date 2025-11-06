@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useSession } from '@/context/Sessioncontext'; // 👈 thêm vào
 
 const doctors = [
   {
@@ -55,6 +56,9 @@ export default function FindPage() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
 
+  const { session } = useSession(); // 👈 lấy thông tin session
+  const isLoggedIn = !!session; // true nếu đã login
+
   const [symptoms, setSymptoms] = useState(query);
   const [departments, setDepartments] = useState<string[]>([]);
   const [filteredDoctors, setFilteredDoctors] = useState<typeof doctors>([]);
@@ -62,7 +66,6 @@ export default function FindPage() {
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Gợi ý triệu chứng (bằng tiếng Việt)
   const suggestions = [
     'Đau đầu',
     'Sốt',
@@ -73,7 +76,6 @@ export default function FindPage() {
     'Đau lưng',
   ];
 
-  // Map triệu chứng → chuyên khoa
   const departmentsMap: Record<string, string[]> = {
     'Đau đầu': ['Thần kinh'],
     Sốt: ['Đa khoa'],
@@ -102,13 +104,11 @@ export default function FindPage() {
 
   useEffect(() => {
     if (query) {
-      // Tách query theo dấu phẩy hoặc khoảng trắng
       const querySymptoms = query
         .split(/[,]+/)
         .map((q) => q.trim())
         .filter((q) => q);
 
-      // Match các triệu chứng hợp lệ trong danh sách gợi ý
       const validMatches = querySymptoms.filter((q) =>
         suggestions.some((s) => s.toLowerCase() === q.toLowerCase())
       );
@@ -119,7 +119,6 @@ export default function FindPage() {
         setSearched(false);
         setTimeout(() => handleSearch(validMatches), 0);
       } else {
-        // Nếu không có match nào, giữ nguyên text trong ô tìm kiếm
         setSymptoms(query);
       }
     }
@@ -244,13 +243,13 @@ export default function FindPage() {
                 </h3>
                 <p className="text-yellow-700">
                   Chúng tôi khuyến nghị bạn nên gặp <b>bác sĩ đa khoa</b> để
-                  được thăm khám ban đầu và tư vấn chuyên khoa phù hợp nếu cần.
+                  được thăm khám ban đầu.
                 </p>
               </div>
             </Card>
           )}
 
-        {/* Chuyên khoa gợi ý */}
+        {/* Gợi ý chuyên khoa */}
         {departments.length > 0 && (
           <Card className="p-6 bg-blue-50 border border-blue-200">
             <div className="flex items-start gap-3">
@@ -328,9 +327,16 @@ export default function FindPage() {
                       </span>
                     </div>
 
+                    {/* 👇 kiểm tra login */}
                     <Button
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={() => router.push(`/book/${doctor.id}`)}
+                      onClick={() => {
+                        if (!isLoggedIn) {
+                          router.push('/auth/login');
+                        } else {
+                          router.push(`/book/${doctor.id}`);
+                        }
+                      }}
                     >
                       Đặt lịch khám
                     </Button>

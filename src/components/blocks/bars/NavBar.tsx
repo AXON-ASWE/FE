@@ -89,8 +89,8 @@ export function Navbar() {
             </span>
           </Link>
 
-          {/* DESKTOP MENU – chỉ hiển thị khi là bệnh nhân */}
-          {role === 'patient' && (
+          {/* DESKTOP MENU – chỉ hiển thị khi đã đăng nhập và là bệnh nhân */}
+          {isLoggedIn && role === 'patient' && (
             <div className="hidden lg:flex items-center gap-8">
               {menuItems.map((item) => (
                 <Link
