@@ -80,3 +80,36 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Smooth modal animations */
+@layer components {
+  [data-radix-dialog-overlay] {
+    animation: fadeIn 300ms ease-out;
+  }
+  
+  [data-radix-dialog-content] {
+    animation: slideUpAndFadeIn 300ms ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+@keyframes slideUpAndFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

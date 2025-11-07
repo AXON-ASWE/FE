@@ -8,12 +8,15 @@ export const metadata = {
 
 export default function ClientLayout({
   children,
+  modal,
 }: {
   children: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   return (
     <PatientRoute>
         {children}
+        {modal}
     </PatientRoute>
   );
 }

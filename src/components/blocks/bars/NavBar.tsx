@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Calendar, Menu, X, ChevronDown, LogOut, User, Settings, Heart, Home } from 'lucide-react';
+import { Calendar, Menu, X, ChevronDown, LogOut, User, Settings, Heart, Home, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -13,12 +13,17 @@ import { useAuth } from '@/context/Sessioncontext';
 
 const menuItems = [
   {
-    title: 'Home',
+    title: 'Trang chủ',
     href: '/',
     icon: <Home className="h-4 w-4" />,
   },
   {
-    title: 'My Appointments',
+    title: 'Tìm bác sĩ',
+    href: '/find',
+    icon: <Search className="h-4 w-4" />,
+  },
+  {
+    title: 'Lịch hẹn của tôi',
     href: '/appointments',
     icon: <Calendar className="h-4 w-4" />,
   },
@@ -84,10 +89,6 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
                     <User className="mr-2" size={16} />
                     Thông tin cá nhân
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push('/profile/change_password')} className="cursor-pointer">
-                    <Settings className="mr-2" size={16} />
-                    Đổi mật khẩu
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

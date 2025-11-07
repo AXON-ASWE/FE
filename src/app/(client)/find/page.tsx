@@ -15,6 +15,7 @@ import {
   DepartmentSuggestionResponse, 
   DoctorResponse 
 } from '@/lib/BE-library/interfaces';
+import { saveAppointmentData, AppointmentData } from '@/lib/appointment-storage';
 
 export default function FindPage() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function FindPage() {
   const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [allSymptoms, setAllSymptoms] = useState<SymptomResponse[]>([]);
   const [selectedDepartments, setSelectedDepartments] = useState<DepartmentSuggestionResponse[]>([]);
-  
+
   useEffect(() => {
     const loadSymptomsFromURL = async () => {
       const query = searchParams.get('q');
@@ -36,18 +37,21 @@ export default function FindPage() {
 
       try {
         const result = await symptomDepartmentOperation.getAllSymptoms();
+        console.log('All symptoms loaded for URL parsing:', result);
         if (result.success && result.data) {
-          setAllSymptoms(result.data);     
-          const queryTerms = query.toLowerCase().split(/[, ]+/).filter(term => term.length > 0);
-          const matchedSymptoms = result.data.filter(symptom => 
-            queryTerms.some(term => 
-              symptom.name.toLowerCase().includes(term)
-            )
+          setAllSymptoms(result.data);
+
+          const queryIds = query
+            .split(',')
+            .map((id) => parseInt(id.trim(), 10))
+            .filter((id) => !isNaN(id));
+
+          const matchedSymptoms = result.data.filter((symptom) =>
+            queryIds.includes(symptom.id)
           );
-          
+          console.log('Matched symptoms from URL IDs:', matchedSymptoms);
           if (matchedSymptoms.length > 0) {
             setSelectedSymptoms(matchedSymptoms);
-            
             await performSearch(matchedSymptoms);
           }
         }
@@ -59,7 +63,6 @@ export default function FindPage() {
     loadSymptomsFromURL();
   }, [searchParams]);
 
-  
   const performSearch = async (symptoms: SymptomResponse[]) => {
     if (symptoms.length === 0) return;
 
@@ -67,15 +70,14 @@ export default function FindPage() {
     setSearched(true);
 
     try {
+      const symptomIds = symptoms.map((symptom) => symptom.id);
+      const departmentResult =
+        await symptomDepartmentOperation.suggestDepartmentBySymptoms({
+          symptomIds,
+        });
       
-      const symptomIds = symptoms.map(symptom => symptom.id);
-      const departmentResult = await symptomDepartmentOperation.suggestDepartmentBySymptoms({
-        symptomIds
-      });
-
       if (departmentResult.success && departmentResult.data) {
         setDepartments(departmentResult.data);
-        // Clear previous doctors and selected departments
         setDoctors([]);
         setSelectedDepartments([]);
       } else {
@@ -93,28 +95,32 @@ export default function FindPage() {
     }
   };
 
-  // Function to toggle department selection and load doctors
-  const toggleDepartmentSelection = async (department: DepartmentSuggestionResponse) => {
-    const isSelected = selectedDepartments.some(d => d.departmentId === department.departmentId);
-    
+  const toggleDepartmentSelection = async (
+    department: DepartmentSuggestionResponse
+  ) => {
+    const isSelected = selectedDepartments.some(
+      (d) => d.departmentId === department.departmentId
+    );
+
     let newSelectedDepartments: DepartmentSuggestionResponse[];
     if (isSelected) {
-      // Remove department from selection
-      newSelectedDepartments = selectedDepartments.filter(d => d.departmentId !== department.departmentId);
+      newSelectedDepartments = selectedDepartments.filter(
+        (d) => d.departmentId !== department.departmentId
+      );
     } else {
-      // Add department to selection
       newSelectedDepartments = [...selectedDepartments, department];
     }
-    
+
     setSelectedDepartments(newSelectedDepartments);
-    
-    // Load doctors from all selected departments
+
     if (newSelectedDepartments.length > 0) {
       setLoadingDoctors(true);
       try {
         const allDoctors: DoctorResponse[] = [];
         for (const dept of newSelectedDepartments) {
-          const doctorResult = await doctorOperation.getDoctorsByDepartment(dept.departmentId);
+          const doctorResult = await doctorOperation.getDoctorsByDepartment(
+            dept.departmentId
+          );
           if (doctorResult.success && doctorResult.data) {
             allDoctors.push(...doctorResult.data);
           }
@@ -133,26 +139,46 @@ export default function FindPage() {
 
   const handleSearch = async () => {
     await performSearch(selectedSymptoms);
-    
-    
+
     if (selectedSymptoms.length > 0) {
-      const symptomNames = selectedSymptoms.map(s => s.name).join(', ');
+      const symptomIds = selectedSymptoms.map((s) => s.id).join(',');
       const params = new URLSearchParams();
-      params.set('q', symptomNames);
+      params.set('q', symptomIds);
       router.replace(`/find?${params.toString()}`, { scroll: false });
     }
   };
 
   const handleSymptomChange = (symptoms: SymptomResponse[]) => {
     setSelectedSymptoms(symptoms);
-    
-    // Clear search results when changing symptoms
+
     if (symptoms.length === 0) {
       setSearched(false);
       setDepartments([]);
       setDoctors([]);
       setSelectedDepartments([]);
       router.replace('/find', { scroll: false });
+    }
+  };
+
+  const handleBookAppointment = (doctor: DoctorResponse) => {
+    // Lưu thông tin đã chọn vào localStorage
+    const appointmentData: AppointmentData = {
+      selectedSymptoms: selectedSymptoms,
+      selectedDepartments: selectedDepartments,
+      selectedDoctor: doctor,
+      timestamp: new Date().toISOString(),
+    };
+
+    const success = saveAppointmentData(appointmentData);
+    
+    if (success) {
+      // Chuyển hướng đến trang đặt lịch
+      router.push(`/book/${doctor.id}`);
+    } else {
+      // Hiển thị thông báo lỗi hoặc xử lý lỗi
+      console.error('Failed to save appointment data');
+      // Vẫn chuyển hướng nhưng không có dữ liệu được lưu
+      router.push(`/book/${doctor.id}`);
     }
   };
 
@@ -170,10 +196,10 @@ export default function FindPage() {
 
           <div className="flex gap-2">
             <div className="flex items-center flex-1 bg-gray-50 rounded-md px-3 border">
-              <SymptomAutocomplete 
+              <SymptomAutocomplete
+                value={selectedSymptoms}
                 onSelectionChange={handleSymptomChange}
                 placeholder="Chọn triệu chứng của bạn..."
-                initialValues={selectedSymptoms}
               />
             </div>
             <Button
@@ -219,7 +245,7 @@ export default function FindPage() {
         {/* Không tìm thấy kết quả */}
         {searched &&
           departments.length === 0 &&
-          doctors.length === 0 && 
+          doctors.length === 0 &&
           !loading && (
             <Card className="p-6 bg-yellow-50 border border-yellow-200 flex items-start gap-3">
               <AlertTriangle className="h-6 w-6 text-yellow-600 mt-1" />
@@ -228,8 +254,8 @@ export default function FindPage() {
                   Không tìm thấy chuyên khoa cụ thể
                 </h3>
                 <p className="text-yellow-700">
-                  Chúng tôi khuyến nghị bạn nên gặp <b>bác sĩ đa khoa</b> để
-                  được thăm khám ban đầu và tư vấn chuyên khoa phù hợp nếu cần.
+                  Chúng tôi khuyến nghị bạn nên gặp <b>bác sĩ đa khoa</b> để được
+                  thăm khám ban đầu và tư vấn chuyên khoa phù hợp nếu cần.
                 </p>
               </div>
             </Card>
@@ -245,12 +271,14 @@ export default function FindPage() {
                   Chuyên khoa được gợi ý
                 </h3>
                 <p className="text-gray-600 mb-3">
-                  Dựa trên triệu chứng của bạn, chúng tôi khuyến nghị bạn nên khám tại. 
+                  Dựa trên triệu chứng của bạn, chúng tôi khuyến nghị bạn nên khám tại.
                   Hãy chọn một hoặc nhiều chuyên khoa để xem danh sách bác sĩ:
                 </p>
                 <div className="flex gap-2 flex-wrap items-center">
                   {departments.map((dept) => {
-                    const isSelected = selectedDepartments.some(d => d.departmentId === dept.departmentId);
+                    const isSelected = selectedDepartments.some(
+                      (d) => d.departmentId === dept.departmentId
+                    );
                     return (
                       <button
                         key={dept.departmentId}
@@ -291,95 +319,108 @@ export default function FindPage() {
                 Đang tải bác sĩ...
               </h3>
               <p className="text-gray-600 max-w-md">
-                Đang tìm bác sĩ trong {selectedDepartments.length > 1 ? 'các khoa' : 'khoa'}: {selectedDepartments.map(d => d.departmentName).join(', ')}
+                Đang tìm bác sĩ trong{' '}
+                {selectedDepartments.length > 1 ? 'các khoa' : 'khoa'}:{' '}
+                {selectedDepartments.map((d) => d.departmentName).join(', ')}
               </p>
             </div>
           </Card>
         )}
 
         {/* Danh sách bác sĩ phù hợp */}
-        {doctors.length > 0 && selectedDepartments.length > 0 && !loadingDoctors && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2">
-              {selectedDepartments.length > 1 
-                ? `Bác sĩ từ ${selectedDepartments.length} chuyên khoa` 
-                : `Bác sĩ khoa ${selectedDepartments[0].departmentName}`
-              }
-            </h3>
-            <p className="text-gray-500 mb-2">
-              Có {doctors.length} bác sĩ phù hợp từ {selectedDepartments.length > 1 ? 'các khoa' : 'khoa'}: 
-            </p>
-            <p className="text-gray-500 mb-6">
-              {selectedDepartments.map(d => d.departmentName).join(', ')}
-            </p>
+        {doctors.length > 0 &&
+          selectedDepartments.length > 0 &&
+          !loadingDoctors && (
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                {selectedDepartments.length > 1
+                  ? `Bác sĩ từ ${selectedDepartments.length} chuyên khoa`
+                  : `Bác sĩ khoa ${selectedDepartments[0].departmentName}`}
+              </h3>
+              <p className="text-gray-500 mb-2">
+                Có {doctors.length} bác sĩ phù hợp từ{' '}
+                {selectedDepartments.length > 1 ? 'các khoa' : 'khoa'}:{' '}
+              </p>
+              <p className="text-gray-500 mb-6">
+                {selectedDepartments.map((d) => d.departmentName).join(', ')}
+              </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {doctors.map((doctor) => (
-                <Card
-                  key={doctor.id}
-                  className="border border-gray-200 hover:shadow-lg"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                        {doctor.doctorName.charAt(0)}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">
-                          {doctor.doctorName}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {doctor.departmentName}
-                        </p>
-                        <div className="flex items-center gap-3 text-sm text-gray-500">
-                          <span className="flex items-center">
-                            <Clock className="h-3 w-3 mr-1" />
-                            {doctor.experience} năm kinh nghiệm
-                          </span>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {doctors.map((doctor) => (
+                  <Card
+                    key={doctor.id}
+                    className="border border-gray-200 hover:shadow-lg"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
+                          {doctor.doctorName.charAt(0)}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900">
+                            {doctor.doctorName}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {doctor.departmentName}
+                          </p>
+                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                            <span className="flex items-center">
+                              <Clock className="h-3 w-3 mr-1" />
+                              {doctor.experience} năm kinh nghiệm
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center justify-between mb-4 pt-4 border-t">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                        <span className="text-sm text-green-600 font-medium">
-                          Có sẵn
-                        </span>
+                      <div className="flex items-center justify-between mb-4 pt-4 border-t">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                          <span className="text-sm text-green-600 font-medium">
+                            Có sẵn
+                          </span>
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {doctor.doctorPhone}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {doctor.doctorPhone}
-                      </div>
-                    </div>
 
-                    <Button
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={() => router.push(`/book/${doctor.id}`)}
-                    >
-                      Đặt lịch khám
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      <Button
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => handleBookAppointment(doctor)}
+                      >
+                        Đặt lịch khám
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Không có bác sĩ trong departments đã chọn */}
-        {selectedDepartments.length > 0 && doctors.length === 0 && !loadingDoctors && (
-          <Card className="p-6 bg-yellow-50 border border-yellow-200 flex items-start gap-3">
-            <AlertTriangle className="h-6 w-6 text-yellow-600 mt-1" />
-            <div>
-              <h3 className="font-semibold text-yellow-800 mb-1">
-                Không có bác sĩ khả dụng
-              </h3>
-              <p className="text-yellow-700">
-                Hiện tại không có bác sĩ nào trong {selectedDepartments.length > 1 ? 'các khoa' : 'khoa'}: <b>{selectedDepartments.map(d => d.departmentName).join(', ')}</b>. 
-                Vui lòng thử chọn chuyên khoa khác hoặc liên hệ với chúng tôi để được hỗ trợ.
-              </p>
-            </div>
-          </Card>
-        )}
+        {/* Không có bác sĩ */}
+        {selectedDepartments.length > 0 &&
+          doctors.length === 0 &&
+          !loadingDoctors && (
+            <Card className="p-6 bg-yellow-50 border border-yellow-200 flex items-start gap-3">
+              <AlertTriangle className="h-6 w-6 text-yellow-600 mt-1" />
+              <div>
+                <h3 className="font-semibold text-yellow-800 mb-1">
+                  Không có bác sĩ khả dụng
+                </h3>
+                <p className="text-yellow-700">
+                  Hiện tại không có bác sĩ nào trong{' '}
+                  {selectedDepartments.length > 1 ? 'các khoa' : 'khoa'}:{' '}
+                  <b>
+                    {selectedDepartments
+                      .map((d) => d.departmentName)
+                      .join(', ')}
+                  </b>
+                  . Vui lòng thử chọn chuyên khoa khác hoặc liên hệ để được hỗ
+                  trợ.
+                </p>
+              </div>
+            </Card>
+          )}
       </div>
     </div>
   );

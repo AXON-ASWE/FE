@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import useAutocomplete, {
   AutocompleteGetItemProps,
-  UseAutocompleteProps,
 } from '@mui/material/useAutocomplete';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -33,8 +32,8 @@ const InputWrapper = styled('div')(({ theme }) => ({
   flexWrap: 'wrap',
   alignItems: 'flex-start',
   gap: '6px',
-  height: '76px', // Fixed height to accommodate 2 rows of tags + input
-  overflowY: 'hidden', // Hide any overflow
+  height: '76px',
+  overflowY: 'hidden',
   '& input': {
     backgroundColor: 'transparent',
     color: 'rgb(17 24 39)',
@@ -42,7 +41,7 @@ const InputWrapper = styled('div')(({ theme }) => ({
     boxSizing: 'border-box',
     padding: '4px 0',
     width: '0',
-    minWidth: '150px', // Smaller minimum width to fit better
+    minWidth: '150px',
     flexGrow: 1,
     flexShrink: 1,
     border: 0,
@@ -58,8 +57,6 @@ const InputWrapper = styled('div')(({ theme }) => ({
     }),
   },
 }));
-
-
 
 interface ItemProps extends ReturnType<AutocompleteGetItemProps<true>> {
   label: string;
@@ -91,8 +88,8 @@ const StyledItem = styled(Item)<ItemProps>(({ theme }) => ({
   fontSize: '12px',
   fontWeight: 500,
   color: '#0050b3',
-  flexShrink: 0, // Prevent tags from shrinking
-  maxWidth: '150px', // Limit individual tag width
+  flexShrink: 0,
+  maxWidth: '150px',
   ...theme.applyStyles('dark', {
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderColor: '#303030',
@@ -125,9 +122,9 @@ const StyledItem = styled(Item)<ItemProps>(({ theme }) => ({
 }));
 
 const Listbox = styled('ul')(({ theme }) => ({
-  width: 'calc(100% - 16px)', // Slightly narrower to match visual width
-  left: '8px', // Center align with input content
-  margin: '12px 0 0', // More spacing from search bar
+  width: 'calc(100% - 16px)',
+  left: '8px',
+  margin: '12px 0 0',
   padding: 0,
   position: 'absolute',
   listStyle: 'none',
@@ -135,15 +132,14 @@ const Listbox = styled('ul')(({ theme }) => ({
   overflowY: 'auto',
   maxHeight: '240px',
   borderRadius: '8px',
-  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+  boxShadow:
+    '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
   zIndex: 50,
   border: '1px solid #e5e7eb',
-  
-  // Hide scrollbar
-  msOverflowStyle: 'none', // IE and Edge
-  scrollbarWidth: 'none', // Firefox
+  msOverflowStyle: 'none',
+  scrollbarWidth: 'none',
   '&::-webkit-scrollbar': {
-    display: 'none', // Chrome, Safari, Opera
+    display: 'none',
   },
   ...theme.applyStyles('dark', {
     backgroundColor: '#141414',
@@ -206,31 +202,33 @@ const MoreTag = styled('div')({
 });
 
 interface SymptomAutocompleteProps {
+  value?: SymptomResponse[];
   onSelectionChange: (symptoms: SymptomResponse[]) => void;
   placeholder?: string;
-  initialValues?: SymptomResponse[];
 }
 
-function SymptomAutocomplete({ onSelectionChange, placeholder, initialValues = [] }: SymptomAutocompleteProps) {
+export default function SymptomAutocomplete({
+  value: externalValue,
+  onSelectionChange,
+  placeholder,
+}: {
+  value?: SymptomResponse[];
+  onSelectionChange: (symptoms: SymptomResponse[]) => void;
+  placeholder?: string;
+}) {
   const [symptoms, setSymptoms] = useState<SymptomResponse[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch symptoms from API
   useEffect(() => {
     const fetchSymptoms = async () => {
       setLoading(true);
       try {
         const result = await symptomDepartmentOperation.getAllSymptoms();
-        if (result.success && result.data) {
-          setSymptoms(result.data);
-        }
-      } catch (error) {
-        console.error('Error fetching symptoms:', error);
+        if (result.success && result.data) setSymptoms(result.data);
       } finally {
         setLoading(false);
       }
     };
-
     fetchSymptoms();
   }, []);
 
@@ -248,12 +246,8 @@ function SymptomAutocomplete({ onSelectionChange, placeholder, initialValues = [
     multiple: true,
     options: symptoms,
     getOptionLabel: (option) => option.name,
-    value: initialValues,
-    onChange: (_, newValue) => {
-      // Allow unlimited selection, display logic will handle the "+... more"
-      onSelectionChange(newValue as SymptomResponse[]);
-    },
-    // Keep dropdown open when selecting options but allow outside click to close
+    value: externalValue ?? undefined,
+    onChange: (_, newValue) => onSelectionChange(newValue as SymptomResponse[]),
     disableCloseOnSelect: true,
     openOnFocus: true,
     blurOnSelect: false,
@@ -266,33 +260,37 @@ function SymptomAutocomplete({ onSelectionChange, placeholder, initialValues = [
           <Search className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0 mt-2" />
           {value.slice(0, 5).map((option, index) => {
             const { key, ...itemProps } = getItemProps({ index });
-            return (
-              <StyledItem
-                key={key}
-                {...itemProps}
-                label={option.name}
-              />
-            );
+            return <StyledItem key={key} {...itemProps} label={option.name} />;
           })}
-          {value.length > 5 && (
-            <MoreTag>
-              +{value.length - 5}more
-            </MoreTag>
-          )}
-          <input 
-            {...getInputProps()} 
-            placeholder={value.length === 0 ? (placeholder || "Nhập triệu chứng của bạn...") : ""}
+          {value.length > 5 && <MoreTag>+{value.length - 5} more</MoreTag>}
+          <input
+            {...getInputProps()}
+            placeholder={
+              value.length === 0
+                ? placeholder || 'Nhập triệu chứng của bạn...'
+                : ''
+            }
           />
         </InputWrapper>
-        {groupedOptions.length > 0 ? (
+
+        {groupedOptions.length > 0 && (
           <Listbox {...getListboxProps()}>
             {loading ? (
-              <li style={{ padding: '12px', textAlign: 'center', color: '#6b7280' }}>
+              <li
+                style={{
+                  padding: '12px',
+                  textAlign: 'center',
+                  color: '#6b7280',
+                }}
+              >
                 Đang tải triệu chứng...
               </li>
             ) : (
               (groupedOptions as SymptomResponse[]).map((option, index) => {
-                const { key, ...optionProps } = getOptionProps({ option, index });
+                const { key, ...optionProps } = getOptionProps({
+                  option,
+                  index,
+                });
                 return (
                   <li key={key} {...optionProps}>
                     <span>{option.name}</span>
@@ -302,10 +300,8 @@ function SymptomAutocomplete({ onSelectionChange, placeholder, initialValues = [
               })
             )}
           </Listbox>
-        ) : null}
+        )}
       </div>
     </Root>
   );
 }
-
-export default SymptomAutocomplete;
