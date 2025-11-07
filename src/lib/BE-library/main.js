@@ -36,65 +36,101 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserOperation = exports.AuthOperation = void 0;
+exports.symptomDepartmentOperation = exports.appointmentOperation = exports.doctorOperation = exports.authOperation = exports.BASE_URL = exports.apiClient = exports.getAccessToken = exports.AxonHealthcareUtils = void 0;
 var axios_1 = require("axios");
+function getAccessToken() {
+    if (typeof document === 'undefined')
+        return null;
+    var cookies = document.cookie.split(';');
+    for (var _i = 0, cookies_1 = cookies; _i < cookies_1.length; _i++) {
+        var cookie = cookies_1[_i];
+        var _a = cookie.trim().split('='), name_1 = _a[0], value = _a[1];
+        if (name_1 === 'access_token') {
+            return decodeURIComponent(value);
+        }
+    }
+    return null;
+}
+exports.getAccessToken = getAccessToken;
+var BASE_URL = 'http://localhost:8080';
+exports.BASE_URL = BASE_URL;
+var apiClient = axios_1.default.create({
+    baseURL: BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+exports.apiClient = apiClient;
+apiClient.interceptors.request.use(function (config) {
+    var token = getAccessToken();
+    if (token) {
+        config.headers.Authorization = "Bearer ".concat(token);
+    }
+    return config;
+});
+var handleApiError = function (error, operation) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    console.error("Error in ".concat(operation, ":"), (_a = error === null || error === void 0 ? void 0 : error.response) === null || _a === void 0 ? void 0 : _a.data);
+    return {
+        success: false,
+        message: ((_c = (_b = error === null || error === void 0 ? void 0 : error.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.message) || (error === null || error === void 0 ? void 0 : error.message) || "An error occurred",
+        status: (_d = error === null || error === void 0 ? void 0 : error.response) === null || _d === void 0 ? void 0 : _d.status,
+        timestamp: (_f = (_e = error === null || error === void 0 ? void 0 : error.response) === null || _e === void 0 ? void 0 : _e.data) === null || _f === void 0 ? void 0 : _f.timestamp,
+        error: (_h = (_g = error === null || error === void 0 ? void 0 : error.response) === null || _g === void 0 ? void 0 : _g.data) === null || _h === void 0 ? void 0 : _h.error,
+    };
+};
 var AuthOperation = /** @class */ (function () {
     function AuthOperation() {
-        this.baseUrl = 'http://localhost/api/v1/internal/auth';
     }
-    AuthOperation.prototype.signup = function (payload) {
+    /**
+     * Admin/Doctor Login
+     * POST /api/auth/login
+     */
+    AuthOperation.prototype.adminLogin = function (payload) {
         return __awaiter(this, void 0, void 0, function () {
             var response, error_1;
-            var _a, _b, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _d.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, axios_1.default.post("".concat(this.baseUrl, "/signup"), payload, {
-                                withCredentials: true,
-                                validateStatus: function (status) { return status >= 200 && status < 300; },
-                            })];
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, axios_1.default.post("".concat(BASE_URL, "/api/auth/login"), payload)];
                     case 1:
-                        response = _d.sent();
+                        response = _a.sent();
                         return [2 /*return*/, {
-                                success: response.data.success,
-                                message: response.data.message,
-                                data: response.data.data,
+                                success: true,
+                                data: response.data,
                                 status: response.status,
                             }];
                     case 2:
-                        error_1 = _d.sent();
-                        console.error("Error signing up: ", (_a = error_1 === null || error_1 === void 0 ? void 0 : error_1.response) === null || _a === void 0 ? void 0 : _a.data);
-                        return [2 /*return*/, { success: false, message: ((_c = (_b = error_1 === null || error_1 === void 0 ? void 0 : error_1.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.message) || "An error occurred" }];
+                        error_1 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_1, 'Admin Login')];
                     case 3: return [2 /*return*/];
                 }
             });
         });
     };
-    AuthOperation.prototype.signin = function (payload) {
+    /**
+     * Patient Registration
+     * POST /api/patient/auth/register
+     */
+    AuthOperation.prototype.patientRegister = function (payload) {
         return __awaiter(this, void 0, void 0, function () {
             var response, error_2;
-            var _a, _b, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _d.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, axios_1.default.post("".concat(this.baseUrl, "/signin"), payload, {
-                                withCredentials: true,
-                                validateStatus: function (status) { return status >= 200 && status < 300; },
-                            })];
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, axios_1.default.post("".concat(BASE_URL, "/api/patient/auth/register"), payload)];
                     case 1:
-                        response = _d.sent();
+                        response = _a.sent();
                         return [2 /*return*/, {
-                                success: response.data.success,
-                                message: response.data.message,
-                                data: response.data.data,
+                                success: true,
+                                data: response.data,
                                 status: response.status,
                             }];
                     case 2:
-                        error_2 = _d.sent();
-                        console.error("Error signing in: ", (_a = error_2 === null || error_2 === void 0 ? void 0 : error_2.response) === null || _a === void 0 ? void 0 : _a.data);
-                        return [2 /*return*/, { success: false, message: ((_c = (_b = error_2 === null || error_2 === void 0 ? void 0 : error_2.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.message) || "An error occurred" }];
+                        error_2 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_2, 'Patient Registration')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -102,40 +138,404 @@ var AuthOperation = /** @class */ (function () {
     };
     return AuthOperation;
 }());
-exports.AuthOperation = AuthOperation;
-var UserOperation = /** @class */ (function () {
-    function UserOperation() {
-        this.baseUrl = 'http://localhost:8000/api/v1/user';
+var DoctorOperation = /** @class */ (function () {
+    function DoctorOperation() {
     }
-    UserOperation.prototype.getAuthenticatedInfo = function () {
+    /**
+     * Get Doctors by Department
+     * GET /doctor?departmentId={id}
+     */
+    DoctorOperation.prototype.getDoctorsByDepartment = function (departmentId) {
         return __awaiter(this, void 0, void 0, function () {
             var response, error_3;
-            var _a, _b, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        _d.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, axios_1.default.get("".concat(this.baseUrl, "/me"), {
-                                withCredentials: true,
-                                validateStatus: function (status) { return status >= 200 && status < 300; },
-                            })];
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get("/doctor?departmentId=".concat(departmentId))];
                     case 1:
-                        response = _d.sent();
+                        response = _a.sent();
                         return [2 /*return*/, {
-                                success: response.data.success,
-                                message: response.data.message,
-                                data: response.data.data,
+                                success: true,
+                                data: response.data,
                                 status: response.status,
                             }];
                     case 2:
-                        error_3 = _d.sent();
-                        console.error("Error fetching authenticated user info: ", (_a = error_3 === null || error_3 === void 0 ? void 0 : error_3.response) === null || _a === void 0 ? void 0 : _a.data);
-                        return [2 /*return*/, { success: false, message: ((_c = (_b = error_3 === null || error_3 === void 0 ? void 0 : error_3.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.message) || "An error occurred" }];
+                        error_3 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_3, 'Get Doctors by Department')];
                     case 3: return [2 /*return*/];
                 }
             });
         });
     };
-    return UserOperation;
+    /**
+     * Create Doctor Profile (Admin only)
+     * POST /doctor/create
+     */
+    DoctorOperation.prototype.createDoctor = function (payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.post('/doctor/create', payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_4 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_4, 'Create Doctor')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return DoctorOperation;
 }());
-exports.UserOperation = UserOperation;
+var AppointmentOperation = /** @class */ (function () {
+    function AppointmentOperation() {
+    }
+    /**
+     * Get Available Time Slots (Patient only)
+     * GET /appointment/available?doctorId={id}&date={yyyy-MM-dd}
+     */
+    AppointmentOperation.prototype.getAvailableTimeSlots = function (doctorId, date) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get("/appointment/available?doctorId=".concat(doctorId, "&date=").concat(date))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_5 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_5, 'Get Available Time Slots')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get Patient Appointments (Patient only)
+     * GET /appointment/patient
+     */
+    AppointmentOperation.prototype.getPatientAppointments = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get('/appointment/patient')];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_6 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_6, 'Get Patient Appointments')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get Doctor Appointments (Doctor only)
+     * GET /appointment/doctor
+     */
+    AppointmentOperation.prototype.getDoctorAppointments = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get('/appointment/doctor')];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_7 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_7, 'Get Doctor Appointments')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Create Appointment (Patient only)
+     * POST /appointment/create
+     */
+    AppointmentOperation.prototype.createAppointment = function (payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_8;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.post('/appointment/create', payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_8 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_8, 'Create Appointment')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Cancel Appointment
+     * PUT /appointment/{id}/cancel
+     */
+    AppointmentOperation.prototype.cancelAppointment = function (appointmentId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_9;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.put("/appointment/".concat(appointmentId, "/cancel"))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_9 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_9, 'Cancel Appointment')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Reschedule Appointment
+     * PUT /appointment/{id}/reschedule
+     */
+    AppointmentOperation.prototype.rescheduleAppointment = function (appointmentId, payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_10;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.put("/appointment/".concat(appointmentId, "/reschedule"), payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_10 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_10, 'Reschedule Appointment')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get time slot display text
+     * Helper function to convert time slot number to readable time
+     */
+    AppointmentOperation.prototype.getTimeSlotDisplay = function (timeSlot) {
+        var timeSlots = {
+            1: '08:00-08:30',
+            2: '08:30-09:00',
+            3: '09:00-09:30',
+            4: '09:30-10:00',
+            5: '10:00-10:30',
+            6: '10:30-11:00',
+            7: '11:00-11:30',
+            8: '11:30-12:00',
+            9: '13:00-13:30',
+            10: '13:30-14:00',
+            11: '14:00-14:30',
+            12: '14:30-15:00',
+            13: '15:00-15:30',
+            14: '15:30-16:00',
+            15: '16:00-16:30',
+            16: '16:30-17:00',
+        };
+        return timeSlots[timeSlot] || 'Invalid time slot';
+    };
+    return AppointmentOperation;
+}());
+var SymptomDepartmentOperation = /** @class */ (function () {
+    function SymptomDepartmentOperation() {
+    }
+    /**
+     * Get All Symptoms
+     * GET /symptoms/names
+     */
+    SymptomDepartmentOperation.prototype.getAllSymptoms = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_11;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get('/symptoms/names')];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_11 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_11, 'Get All Symptoms')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Suggest Department by Symptoms
+     * POST /department/suggest
+     */
+    SymptomDepartmentOperation.prototype.suggestDepartmentBySymptoms = function (payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_12;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.post('/department/suggest', payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_12 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_12, 'Suggest Department by Symptoms')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return SymptomDepartmentOperation;
+}());
+var AxonHealthcareUtils = /** @class */ (function () {
+    function AxonHealthcareUtils() {
+    }
+    /**
+     * Format date to yyyy-MM-dd format required by API
+     */
+    AxonHealthcareUtils.formatDateForAPI = function (date) {
+        return date.toISOString().split('T')[0];
+    };
+    /**
+     * Parse API date string to Date object
+     */
+    AxonHealthcareUtils.parseAPIDate = function (dateString) {
+        return new Date(dateString);
+    };
+    /**
+     * Check if user has required role
+     */
+    AxonHealthcareUtils.hasRole = function (requiredRole) {
+        var token = getAccessToken();
+        if (!token)
+            return false;
+        try {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64)
+                .split('')
+                .map(function (c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); })
+                .join(''));
+            var payload = JSON.parse(jsonPayload);
+            return payload.role === requiredRole;
+        }
+        catch (error) {
+            return false;
+        }
+    };
+    /**
+     * Get user role from token
+     */
+    AxonHealthcareUtils.getUserRole = function () {
+        var token = getAccessToken();
+        if (!token)
+            return null;
+        try {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64)
+                .split('')
+                .map(function (c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); })
+                .join(''));
+            var payload = JSON.parse(jsonPayload);
+            return payload.role;
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    /**
+     * Check if token is expired
+     */
+    AxonHealthcareUtils.isTokenExpired = function () {
+        var token = getAccessToken();
+        if (!token)
+            return true;
+        try {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(atob(base64)
+                .split('')
+                .map(function (c) { return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2); })
+                .join(''));
+            var payload = JSON.parse(jsonPayload);
+            var currentTime = Math.floor(Date.now() / 1000);
+            return payload.exp < currentTime;
+        }
+        catch (error) {
+            return true;
+        }
+    };
+    return AxonHealthcareUtils;
+}());
+exports.AxonHealthcareUtils = AxonHealthcareUtils;
+// Create instances for export
+var authOperation = new AuthOperation();
+exports.authOperation = authOperation;
+var doctorOperation = new DoctorOperation();
+exports.doctorOperation = doctorOperation;
+var appointmentOperation = new AppointmentOperation();
+exports.appointmentOperation = appointmentOperation;
+var symptomDepartmentOperation = new SymptomDepartmentOperation();
+exports.symptomDepartmentOperation = symptomDepartmentOperation;

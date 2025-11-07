@@ -1,8 +1,7 @@
 'use client';
 
-import { Search, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
@@ -13,6 +12,8 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
+import SymptomAutocomplete from '@/components/widgets/SymptomAutocomplete';
+import { SymptomResponse } from '@/lib/BE-library/interfaces';
 
 const doctors = [
   {
@@ -139,14 +140,19 @@ const doctors = [
 
 export default function Home() {
   const router = useRouter();
-  const [searchText, setSearchText] = useState('');
+  const [selectedSymptoms, setSelectedSymptoms] = useState<SymptomResponse[]>([]);
   const [department, setDepartment] = useState('Tất cả');
   const [page, setPage] = useState(1);
   const perPage = 9;
 
   const handleSearch = () => {
-    if (!searchText.trim()) return;
-    router.push(`/find?q=${encodeURIComponent(searchText)}`);
+    if (selectedSymptoms.length === 0) return;
+    const symptomNames = selectedSymptoms.map(s => s.name).join(',');
+    router.push(`/find?q=${encodeURIComponent(symptomNames)}`);
+  };
+
+  const handleSymptomSelection = (symptoms: SymptomResponse[]) => {
+    setSelectedSymptoms(symptoms);
   };
 
   // Lọc theo chuyên khoa
@@ -177,24 +183,30 @@ export default function Home() {
           </p>
 
           <div className="max-w-2xl mx-auto">
-            <div className="flex gap-2 bg-white rounded-lg p-2 shadow-lg">
-              <div className="flex items-center flex-1 px-3">
-                <Search className="h-5 w-5 text-gray-400 mr-2" />
-                <Input
-                  type="text"
-                  placeholder="Nhập triệu chứng của bạn (ví dụ: đau đầu, sốt...)"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  className="border-0 focus-visible:ring-0 text-gray-900 placeholder:text-gray-500"
-                />
+            <div className="flex gap-3">
+              <div className="bg-white rounded-lg p-3 shadow-lg flex-1">
+                <div className="flex items-start px-2">
+                  <SymptomAutocomplete
+                    onSelectionChange={handleSymptomSelection}
+                    placeholder="Nhập triệu chứng của bạn (ví dụ: đau đầu, sốt...)"
+                  />
+                </div>
               </div>
               <Button
                 onClick={handleSearch}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8"
+                disabled={selectedSymptoms.length === 0}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 h-fit min-h-[56px] self-start disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
               >
                 Tìm kiếm
               </Button>
             </div>
+            {selectedSymptoms.length > 0 && (
+              <div className="mt-3 text-center">
+                <p className="text-sm text-blue-100">
+                  Đã chọn {selectedSymptoms.length} triệu chứng: {selectedSymptoms.map(s => s.name).join(', ')}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </section>

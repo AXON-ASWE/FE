@@ -6,13 +6,15 @@ import { FormMessageAlert } from "../../ui/FormMessageAlert";
 import { CustomButton } from "../../ui/CustomButton";
 import { TextField } from "../../blocks/TextField";
 import { MailIcon, LockIcon, GoogleIcon, MicrosoftIcon } from "../../icons";
-import { signin } from "@/app/api/auth";
+import { authOperation } from "@/lib/BE-library/main";
+import { LoginPayload } from "@/lib/BE-library/interfaces";
+import { setTokenCookie, getRedirectPath } from "@/lib/auth-utils";
 
 export const AuthForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // State for success message
+  const [success, setSuccess] = useState(""); 
   const [loading, setLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const router = useRouter();
@@ -22,20 +24,46 @@ export const AuthForm = () => {
     setIsDisabled(true);
     setLoading(true);
     setError("");
-    setSuccess(""); // Clear previous success message
+    setSuccess("");
 
-    // Simulate API call
-    try {
-      const response = await signin({ email, password });
-      console.log("Signin successful:", response);
-      setSuccess("Login successful! Redirecting to dashboard...");
-      setTimeout(() => router.push("/dashboard/home"), 2000); // Redirect after 2 seconds
-    } catch (err: any) {
-      setError(err.message);
+    
+    if (!email.includes("@")) {
+      setError("Vui lòng nhập địa chỉ email hợp lệ.");
+      setLoading(false);
+      setIsDisabled(false);
+      return;
     }
 
-    if (!email.includes("@") || password.length < 4) {
-      setError("Email or password is not correct.");
+    if (password.length < 8) {
+      setError("Mật khẩu phải có ít nhất 8 ký tự.");
+      setLoading(false);
+      setIsDisabled(false);
+      return;
+    }
+
+    try {
+      const loginPayload: LoginPayload = { email, password };
+      const result = await authOperation.adminLogin(loginPayload);
+
+      if (result.success && result.data) {
+        
+        setTokenCookie(result.data.accessToken, result.data.expiration);
+        
+        console.log("Login successful:", result.data);
+        const userRole = result.data.role;
+        setSuccess(`Đăng nhập thành công với vai trò ${userRole}! Đang chuyển hướng đến trang chủ...`);
+        
+        
+        setTimeout(() => {
+          const redirectPath = getRedirectPath(userRole);
+          router.push(redirectPath);
+        }, 1500);
+      } else {
+        setError(result.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.");
+      }
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setError(err.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.");
     }
 
     setLoading(false);
@@ -44,9 +72,9 @@ export const AuthForm = () => {
   return (
     <div>
       <div className="flex flex-col space-y-1.5 p-6">
-        <h3 className="text-xl font-semibold leading-none tracking-tight">Log in</h3>
+        <h3 className="text-xl font-semibold leading-none tracking-tight">Đăng nhập</h3>
         <p className="text-sm text-zinc-500 text-muted-foreground">
-          Enter your details below to sign into your account.
+          Nhập thông tin chi tiết của bạn bên dưới để đăng nhập vào tài khoản.
         </p>
       </div>
       <form onSubmit={handleSubmit} noValidate className="p-6 pt-0 flex flex-col gap-4">
@@ -62,7 +90,7 @@ export const AuthForm = () => {
 
         {/* Password Field */}
         <TextField
-          label="Password"
+          label="Mật khẩu"
           type="password"
           id="password"
           icon={<LockIcon />}
@@ -73,7 +101,7 @@ export const AuthForm = () => {
             href="/auth/forgot-password"
             className="text-sm underline text-muted-foreground"
           >
-            Forgot your password?
+            Quên mật khẩu?
           </a>
         </TextField>
 
@@ -87,11 +115,11 @@ export const AuthForm = () => {
           spinnerIcon={loading}
           disabled={loading || isDisabled}
         >
-          {loading ? "Logging in..." : "Log in"}
+          {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </CustomButton>
         <div className="flex items-center gap-4 text-muted-foreground text-sm">
           <div className="h-px flex-1 bg-gray-300" />
-          Or continue with
+          Hoặc tiếp tục với
           <div className="h-px flex-1 bg-gray-300" />
         </div>
 
@@ -113,9 +141,9 @@ export const AuthForm = () => {
         </div>
       </form>
       <p className="items-center p-6 pt-0 flex justify-center gap-1 text-sm text-muted-foreground">
-        Don’t have an account?{" "}
+        Chưa có tài khoản?{" "}
         <a href="/auth/signup" className="underline font-semibold text-foreground">
-          Sign up
+          Đăng ký
         </a>
       </p>
     </div>

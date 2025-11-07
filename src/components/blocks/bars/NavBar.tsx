@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { useSession } from '@/context/Sessioncontext';
+import { useAuth } from '@/context/Sessioncontext';
 
 const menuItems = [
   {
@@ -26,22 +26,18 @@ const menuItems = [
 
 export function Navbar() {
   const router = useRouter();
-  const { session, status, setSession } = useSession();
+  const { session, status, logout: handleAuthLogout, isAuthenticated, userName: authUserName, userEmail } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(null);
 
-  const handleLogout = () => {
-    Cookies.remove('access_token', { path: '/' });
-    Cookies.remove('refresh_token', { path: '/' });
-    Cookies.remove('role', { path: '/' });
-
-    setSession(null); 
-    router.push('/auth/login');
+  const handleLogout = async () => {
+    await handleAuthLogout();
+    setMobileMenuOpen(false);
   };
 
-  const isLoggedIn = status === 'authenticated';
-  const userName = session?.name || 'Người dùng';
+  const isLoggedIn = isAuthenticated;
+  const displayName = authUserName || session?.name || 'Người dùng';
 
   return (
     <nav className="sticky top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-gray-100 dark:border-slate-700">
@@ -73,7 +69,7 @@ export function Navbar() {
                     className="text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2"
                   >
                     <User size={16} />
-                    <span>{userName}</span>
+                    <span>{displayName}</span>
                     <ChevronDown size={14} />
                   </Button>
                 </DropdownMenuTrigger>
@@ -81,7 +77,7 @@ export function Navbar() {
                   <DropdownMenuLabel>
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">Tài khoản của tôi</p>
-                      <p className="text-xs text-muted-foreground">{session?.email}</p>
+                      <p className="text-xs text-muted-foreground">{userEmail || session?.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -153,7 +149,7 @@ export function Navbar() {
                     <div className="mb-2 px-3 py-2 rounded-md bg-slate-800">
                       <div className="flex items-center gap-2">
                         <User size={16} className="text-muted-foreground" />
-                        <span className="text-sm">Xin chào, {userName}</span>
+                        <span className="text-sm">Xin chào, {displayName}</span>
                       </div>
                     </div>
                     <Button variant="outline" onClick={() => { setMobileMenuOpen(false); router.push('/profile'); }}>

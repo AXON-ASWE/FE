@@ -1,8 +1,15 @@
 import LoginScreen from '@/screens/LoginScreen';
+import { PublicRoute } from '@/components/guards/RouteGuard';
+
 export const metadata = {
-  title: 'Login | Acme',
-  description: 'Your admin panel',
+  title: 'Đăng nhập | AXON Healthcare',
+  description: 'Trang đăng nhập hệ thống quản lý bệnh viện AXON',
 };
+
 export default function LoginPage() {
-  return <LoginScreen />;
+  return (
+    <PublicRoute>
+      <LoginScreen />
+    </PublicRoute>
+  );
 }
