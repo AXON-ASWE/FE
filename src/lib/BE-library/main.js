@@ -52,7 +52,7 @@ function getAccessToken() {
     return null;
 }
 exports.getAccessToken = getAccessToken;
-var BASE_URL = 'http://172.20.10.10:8080';
+var BASE_URL = 'http://localhost:8080';
 exports.BASE_URL = BASE_URL;
 var apiClient = axios_1.default.create({
     baseURL: BASE_URL,
@@ -73,7 +73,7 @@ var handleApiError = function (error, operation) {
     console.error("Error in ".concat(operation, ":"), (_a = error === null || error === void 0 ? void 0 : error.response) === null || _a === void 0 ? void 0 : _a.data);
     return {
         success: false,
-        message: ((_c = (_b = error === null || error === void 0 ? void 0 : error.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.message) || (error === null || error === void 0 ? void 0 : error.message) || "An error occurred",
+        message: ((_c = (_b = error === null || error === void 0 ? void 0 : error.response) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.message) || (error === null || error === void 0 ? void 0 : error.message) || 'An error occurred',
         status: (_d = error === null || error === void 0 ? void 0 : error.response) === null || _d === void 0 ? void 0 : _d.status,
         timestamp: (_f = (_e = error === null || error === void 0 ? void 0 : error.response) === null || _e === void 0 ? void 0 : _e.data) === null || _f === void 0 ? void 0 : _f.timestamp,
         error: (_h = (_g = error === null || error === void 0 ? void 0 : error.response) === null || _g === void 0 ? void 0 : _g.data) === null || _h === void 0 ? void 0 : _h.error,

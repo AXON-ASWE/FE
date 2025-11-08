@@ -41,7 +41,7 @@ function getAccessToken(): string | null {
   return null;
 }
 
-const BASE_URL = 'http://172.20.10.10:8080';
+const BASE_URL = 'http://localhost:8080';
 const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
