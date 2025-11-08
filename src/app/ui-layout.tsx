@@ -10,9 +10,9 @@ export default function UILayout({ children }: { children: React.ReactNode }) {
 
   if (status === 'loading') return <div>Loading...</div>;
 
-  const role = session?.role ?? 'patient';
+  const role = session?.role ?? 'PATIENT';
 
-  if (role === 'patient') {
+  if (role === 'PATIENT') {
     return (
       <>
         <Navbar />
