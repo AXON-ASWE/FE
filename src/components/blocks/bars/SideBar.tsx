@@ -17,6 +17,7 @@ import {
 import { useAuth, useSession } from '@/context/Sessioncontext';
 import { useState } from 'react';
 import React from 'react';
+import { Button } from '@/components/ui/button';
 
 interface SidebarProps {
   className?: string;
@@ -45,8 +46,8 @@ type MenuDropdown = {
 type MenuItem = MenuLink | MenuDropdown;
 
 export function Sidebar({ className = '' }: SidebarProps) {
-  const { session, status, logout: handleAuthLogout, isAuthenticated, userName: authUserName, userEmail } = useAuth();
-  
+  const { session, status, isAuthenticated, userName: authUserName, logout } = useAuth();
+
   const role = session?.role;
   const [openUserMenu, setOpenUserMenu] = useState(false);
 
@@ -64,7 +65,6 @@ export function Sidebar({ className = '' }: SidebarProps) {
       icon: <Calendar />,
       label: 'Lịch hẹn của tôi',
     },
-    { type: 'link', href: '/doctor/profile', icon: <IdCard />, label: 'Hồ sơ' },
   ];
 
   // admin menu: include a dropdown item (type:'dropdown')
@@ -103,15 +103,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
       href: '/admin/symptoms',
       icon: <AlertCircle />,
       label: 'Triệu chứng',
-    },
-    {
-      type: 'link',
-      href: '/admin/appointments',
-      icon: <ClipboardList />,
-      label: 'Lịch hẹn',
-    },
-    { type: 'link', href: '/admin/profile', icon: <IdCard />, label: 'Hồ sơ' },
-  ];
+    }  ];
 
   const menuItems: MenuItem[] = role === 'ADMIN' ? adminMenu : doctorMenu;
 
@@ -158,7 +150,6 @@ export function Sidebar({ className = '' }: SidebarProps) {
             );
           }
 
-          // else it's MenuLink (TS narrows)
           return (
             <SideItem
               key={item.href}
@@ -172,7 +163,9 @@ export function Sidebar({ className = '' }: SidebarProps) {
 
         <hr className="my-3" />
 
-        <SideItem href="/logout" icon={<LogOut />} label="Đăng xuất" danger />
+        <button onClick={() => logout()} className={`text-red-600 flex items-center gap-3 px-3 py-2 rounded-md`}>
+          Đăng xuất
+        </button>
       </nav>
     </aside>
   );
@@ -189,7 +182,6 @@ function SideItem({
   label: string;
   danger?: boolean;
 }) {
-  const { session, status, logout: handleAuthLogout, isAuthenticated, userName: authUserName, userEmail } = useAuth();
 
   return (
     <Link
@@ -197,7 +189,6 @@ function SideItem({
       className={`flex items-center gap-3 px-3 py-2 rounded-md
       ${danger ? 'text-red-600' : 'text-gray-700'}
       hover:bg-gray-100 transition`}
-      onClick = {() => handleAuthLogout()}
     >
       {icon}
       <span>{label}</span>

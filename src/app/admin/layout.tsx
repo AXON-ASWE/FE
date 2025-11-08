@@ -9,7 +9,6 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
 
   return (
     <div className="flex min-h-screen ">

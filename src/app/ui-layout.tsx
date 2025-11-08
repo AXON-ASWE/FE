@@ -9,8 +9,8 @@ export default function UILayout({ children }: { children: React.ReactNode }) {
   const { session, status } = useSession();
 
   if (status === 'loading') return <div>Loading...</div>;
-
   const role = session?.role ?? 'PATIENT';
+  console.log(role, "role")
 
   if (role === 'PATIENT') {
     return (

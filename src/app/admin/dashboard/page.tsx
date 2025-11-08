@@ -23,13 +23,6 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    if (!session) return;
-
-    if (session.role !== 'ADMIN') {
-      router.push('/');
-      return;
-    }
-
     // Fetch dashboard statistics
     const fetchStats = async () => {
       try {
@@ -55,9 +48,6 @@ export default function AdminDashboard() {
 
     fetchStats();
   }, [session, router]);
-
-  if (!session) return <div>Đang kiểm tra phiên...</div>;
-  if (loading) return <div>Đang tải dữ liệu...</div>;
 
   return (
     <div className="space-y-6">
@@ -89,7 +79,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ========== RECENT APPOINTMENTS ========== */}
-      <Card className="shadow-sm border border-gray-200">
+      {/* <Card className="shadow-sm border border-gray-200">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">
             Hoạt động gần đây
@@ -97,7 +87,7 @@ export default function AdminDashboard() {
         </CardHeader>
 
         <CardContent className="text-gray-500">(Đang cập nhật…)</CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }

@@ -70,7 +70,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
                 const token = getAccessToken();
                 
                 if (!token) {
-                    
                     router.push("/auth/login");
                     setStatus("unauthenticated");
                     return;
@@ -80,7 +79,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
                 const response = await symptomDepartmentOperation.getAllSymptoms();
                 
                 if (!response.success || response.status !== 200) {
-                    
+                    console.log("Failed to fetch symptoms");
                     router.push("/auth/login");
                     setStatus("unauthenticated");
                     return;
@@ -105,7 +104,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
             } catch (error) {
                 
                 
-                // Only redirect to login if not on public routes
                 if (!isPublicRoute) {
                     router.push("/auth/login");
                 }
@@ -166,8 +164,6 @@ export function useAuth() {
             await logout("/auth/login");
             setSession(null);
         } catch (error) {
-            
-            // Force redirect even if logout fails
             router.push("/auth/login");
             setSession(null);
         }

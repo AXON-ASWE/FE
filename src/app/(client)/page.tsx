@@ -131,12 +131,12 @@ export default function Home() {
     
     if (success) {
       // Chuyển hướng đến trang đặt lịch
-      router.push(`/book/${doctor.doctorId}`);
+      router.push(`/book/${doctor.userId}`);
     } else {
       // Hiển thị thông báo lỗi hoặc xử lý lỗi
       console.error('Failed to save appointment data');
       // Vẫn chuyển hướng nhưng không có dữ liệu được lưu
-      router.push(`/book/${doctor.doctorId}`);
+      router.push(`/book/${doctor.userId}`);
     }
   };
 

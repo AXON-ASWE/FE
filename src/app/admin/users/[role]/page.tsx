@@ -43,6 +43,7 @@ import {
 } from '@/lib/BE-library/interfaces';
 import { useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { set } from 'date-fns';
 
 
 
@@ -223,6 +224,7 @@ function UserTable({ role }: { role: Role }) {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const [editing, setEditing] = useState<RoleMap[Role][number] | null>(null);
+  const [create, setCreate] = useState<Boolean>(true);
 
   const filtered = useMemo(() => {
     let arr = [...data];
@@ -264,34 +266,18 @@ function UserTable({ role }: { role: Role }) {
   };
 
   
-  const generateEmptyUser = (): RoleMap[Role][number] => {
-    if (role === 'ADMIN') {
-      return {
-        fullName: '',
-        email: '',
-        phone: '',
-        role: 'admin',
-        status: 'Active',
-        createdAt: '',
-      } as AdminUser;
-    }
+  const generateEmptyUser = () => {
 
     if (role === 'DOCTOR') {
       return {
-        fullName: '',
-        email: '',
-        phone: '',
         role: 'doctor',
-        status: 'Active',
-        createdAt: '',
-        specialization: '',
-        experienceYears: 0,
-        qualification: '',
-        departmentName: '',
+        doctorName: "",
         departmentId: 0,
-        doctorId: 0,
-        userId: 0,
-      } as DoctorUser;
+        experience: 0,
+        doctorEmail: "",
+        doctorPhone: "",
+        password: "pass1234"
+      } as any;
     }
 
     return {
@@ -308,149 +294,170 @@ function UserTable({ role }: { role: Role }) {
     } as PatientUser;
   };
 
-  
-  const handleSave = async () => {
+  // =================== HANDLE CREATE =====================
+  const handleCreate = async () => {
+    if (!editing) return;
+
+    try {
+      if (role === 'PATIENT') {
+        toast({
+          title: 'Thông báo',
+          description: 'Chức năng tạo bệnh nhân mới đang được phát triển',
+        });
+        return;
+      } else if (role === 'DOCTOR' && editing.role === 'doctor') {
+        const doctorEditing = editing as DoctorUser;
+        
+        if (!doctorEditing.departmentId || doctorEditing.departmentId === 0) {
+          toast({
+            title: 'Lỗi',
+            description: 'Vui lòng chọn khoa cho bác sĩ',
+            variant: 'destructive'
+          });
+          return;
+        }
+
+        const createPayload: CreateDoctorPayload = {
+          doctorName: doctorEditing.fullName,
+          departmentId: doctorEditing.departmentId,
+          experience: doctorEditing.experienceYears,
+          doctorEmail: doctorEditing.email,
+          doctorPhone: doctorEditing.phone,
+          password: 'defaultPassword123',
+        };
+
+        const response = await adminOperation.createDoctorAdmin(createPayload);
+        if (response.success) {
+          // Refresh the data by refetching
+          const updatedResponse = await adminOperation.getAllDoctorsAdmin();
+          if (updatedResponse.success && updatedResponse.data) {
+            const transformedDoctors: DoctorUser[] = updatedResponse.data.map(doctor => ({
+              id: doctor.userId,
+              fullName: doctor.doctorName,
+              email: doctor.doctorEmail,
+              phone: doctor.doctorPhone,
+              role: 'doctor',
+              status: 'Active',
+              createdAt: new Date().toISOString().split('T')[0],
+              specialization: doctorEditing.specialization || 'Chưa có thông tin',
+              experienceYears: doctor.experience,
+              qualification: doctorEditing.qualification || 'Chưa có thông tin',
+              departmentName: doctor.departmentName,
+              departmentId: doctor.departmentId,
+              doctorId: doctor.doctorId,
+            }));
+            setData(transformedDoctors as RoleMap[Role]);
+          }
+          toast({ title: 'Đã tạo bác sĩ mới' });
+        } else {
+          throw new Error(response.message || 'Không thể tạo bác sĩ mới');
+        }
+      } else {
+        // For admin roles, use local state (no API available)
+        setData(
+          (prev) =>
+            [
+              ...prev,
+              {
+                ...editing,
+                id: Date.now(),
+                createdAt: new Date().toISOString().split('T')[0],
+              },
+            ] as RoleMap[Role]
+        );
+        toast({ title: 'Đã tạo mới' });
+      }
+
+      setEditing(null);
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      toast({
+        title: 'Lỗi',
+        description: error.message || 'Có lỗi xảy ra khi tạo người dùng',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  // =================== HANDLE UPDATE =====================
+  const handleUpdate = async () => {
     if (!editing) return;
 
     try {
       if (role === 'PATIENT' && editing.role === 'patient') {
         const patientEditing = editing as PatientUser;
         
-        if (patientEditing.id === 0) {
-          
-          toast({
-            title: 'Thông báo',
-            description: 'Chức năng tạo bệnh nhân mới đang được phát triển',
-          });
-          return;
-        } else {
-          
-          const updatePayload: UpdatePatientPayload = {
-            email: patientEditing.email,
-            fullName: patientEditing.fullName,
-            phone: patientEditing.phone,
-            emergencyContact: patientEditing.emergencyContact,
-            insuranceNumber: patientEditing.insuranceNumber,
-            address: patientEditing.medicalHistory, 
-            status: patientEditing.status === 'Active' ? 'ACTIVE' : 'INACTIVE',
-          };
+        const updatePayload: UpdatePatientPayload = {
+          email: patientEditing.email,
+          fullName: patientEditing.fullName,
+          phone: patientEditing.phone,
+          emergencyContact: patientEditing.emergencyContact,
+          insuranceNumber: patientEditing.insuranceNumber,
+          address: patientEditing.medicalHistory,
+          status: patientEditing.status === 'Active' ? 'ACTIVE' : 'INACTIVE',
+        };
 
-          const response = await adminOperation.updatePatient(patientEditing.id, updatePayload);
-          if (response.success && response.data) {
-            
-            setData(
-              (prev) =>
-                prev.map((u) => (u.id === editing.id ? editing : u)) as RoleMap[Role]
-            );
-            toast({ title: 'Đã cập nhật bệnh nhân' });
-          } else {
-            throw new Error(response.message || 'Không thể cập nhật bệnh nhân');
-          }
-        }
-      } else if (role === 'DOCTOR' && editing.role === 'doctor') {
-        const doctorEditing = editing as DoctorUser;
-        
-        if (doctorEditing.id === 0) {
-          
-          if (!doctorEditing.departmentId || doctorEditing.departmentId === 0) {
-            toast({
-              title: 'Lỗi',
-              description: 'Vui lòng chọn khoa cho bác sĩ',
-              variant: 'destructive'
-            });
-            return;
-          }
-
-          const createPayload: UpdateDoctorPayload = {
-            fullName: doctorEditing.fullName,
-            phone: doctorEditing.phone,
-            specialization: doctorEditing.specialization,
-            experienceYears: doctorEditing.experienceYears,
-            qualifications: doctorEditing.qualification,
-            departmentId: doctorEditing.departmentId,
-          };
-
-          const response = await adminOperation.updateDoctorAdmin(doctorEditing.id, createPayload);
-          if (response.success) {
-            
-            const updatedResponse = await adminOperation.getAllDoctorsAdmin();
-            if (updatedResponse.success && updatedResponse.data) {
-              const transformedDoctors: DoctorUser[] = updatedResponse.data.map(doctor => ({
-                id: doctor.userId,
-                fullName: doctor.doctorName,
-                email: doctor.doctorEmail,
-                phone: doctor.doctorPhone,
-                role: 'doctor',
-                status: 'Active',
-                createdAt: new Date().toISOString().split('T')[0],
-                specialization: doctorEditing.specialization || 'Chưa có thông tin',
-                experienceYears: doctor.experience,
-                qualification: doctorEditing.qualification || 'Chưa có thông tin',
-                departmentName: doctor.departmentName,
-                departmentId: doctor.departmentId,
-                doctorId: doctor.doctorId,
-              }));
-              setData(transformedDoctors as RoleMap[Role]);
-            }
-            toast({ title: 'Đã tạo bác sĩ mới' });
-          } else {
-            throw new Error(response.message || 'Không thể tạo bác sĩ mới');
-          }
-        } else {
-          
-          const updatePayload: UpdateDoctorPayload = {
-            fullName: doctorEditing.fullName,
-            phone: doctorEditing.phone,
-            specialization: doctorEditing.specialization,
-            experienceYears: doctorEditing.experienceYears,
-            qualifications: doctorEditing.qualification,
-            departmentId: doctorEditing.departmentId,
-          };
-
-          const response = await adminOperation.updateDoctorAdmin(doctorEditing.doctorId || doctorEditing.id, updatePayload);
-          if (response.success && response.data) {
-            
-            setData(
-              (prev) =>
-                prev.map((u) => (u.id === editing.id ? editing : u)) as RoleMap[Role]
-            );
-            toast({ title: 'Đã cập nhật bác sĩ' });
-          } else {
-            throw new Error(response.message || 'Không thể cập nhật bác sĩ');
-          }
-        }
-      } else {
-        
-        if (editing.id === 0) {
-          setData(
-            (prev) =>
-              [
-                ...prev,
-                {
-                  ...editing,
-                  id: Date.now(),
-                  createdAt: new Date().toISOString().split('T')[0],
-                },
-              ] as RoleMap[Role]
-          );
-          toast({ title: 'Đã tạo mới' });
-        } else {
+        const response = await adminOperation.updatePatient(patientEditing.id, updatePayload);
+        if (response.success && response.data) {
           setData(
             (prev) =>
               prev.map((u) => (u.id === editing.id ? editing : u)) as RoleMap[Role]
           );
-          toast({ title: 'Đã cập nhật' });
+          toast({ title: 'Đã cập nhật bệnh nhân' });
+        } else {
+          throw new Error(response.message || 'Không thể cập nhật bệnh nhân');
         }
+      } else if (role === 'DOCTOR' && editing.role === 'doctor') {
+        const doctorEditing = editing as DoctorUser;
+        
+        const updatePayload: UpdateDoctorPayload = {
+          fullName: doctorEditing.fullName,
+          phone: doctorEditing.phone,
+          specialization: doctorEditing.specialization,
+          experienceYears: doctorEditing.experienceYears,
+          qualifications: doctorEditing.qualification,
+          departmentId: doctorEditing.departmentId,
+        };
+
+        const response = await adminOperation.updateDoctorAdmin(doctorEditing.doctorId || doctorEditing.id, updatePayload);
+        if (response.success && response.data) {
+          setData(
+            (prev) =>
+              prev.map((u) => (u.id === editing.id ? editing : u)) as RoleMap[Role]
+          );
+          toast({ title: 'Đã cập nhật bác sĩ' });
+        } else {
+          throw new Error(response.message || 'Không thể cập nhật bác sĩ');
+        }
+      } else {
+        // For admin roles, use local state (no API available)
+        setData(
+          (prev) =>
+            prev.map((u) => (u.id === editing.id ? editing : u)) as RoleMap[Role]
+        );
+        toast({ title: 'Đã cập nhật' });
       }
 
       setEditing(null);
     } catch (error: any) {
-      console.error('Error saving user:', error);
+      console.error('Error updating user:', error);
       toast({
         title: 'Lỗi',
-        description: error.message || 'Có lỗi xảy ra khi lưu thông tin',
+        description: error.message || 'Có lỗi xảy ra khi cập nhật thông tin',
         variant: 'destructive'
       });
+    }
+  };
+
+  // =================== HANDLE SAVE (ROUTER) =====================
+  const handleSave = async () => {
+    if (!editing) return;
+    
+    if (create) {
+      console.log('Creating new user...');
+      await handleCreate();
+    } else {
+      await handleUpdate();
     }
   };
 
@@ -607,6 +614,7 @@ function UserTable({ role }: { role: Role }) {
             size="sm"
             className="bg-blue-600 hover:bg-blue-700"
             onClick={() => {
+              setCreate(true);
               setEditing(generateEmptyUser());
             }}
           >
@@ -660,6 +668,7 @@ function UserTable({ role }: { role: Role }) {
                         variant="ghost"
                         size="sm"
                         onClick={() => {
+                          setCreate(false);
                           setEditing(u);
                         }}
                       >
@@ -725,7 +734,6 @@ function UserTable({ role }: { role: Role }) {
         </div>
       </Card>
 
-      {/* POPUP EDIT */}
       <Dialog open={!!editing} onOpenChange={() => setEditing(null)}>
         <DialogContent>
           <DialogHeader>
@@ -763,7 +771,7 @@ function UserTable({ role }: { role: Role }) {
                   }
                 />
               </div>
-
+              
               {editing.role === 'doctor' && (
                 <>
                   <div>

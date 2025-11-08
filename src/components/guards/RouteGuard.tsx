@@ -122,7 +122,6 @@ export function PublicRoute({ children }: { children: React.ReactNode }) {
                 'DOCTOR': '/doctor',
                 'PATIENT': '/'
             };
-            
             router.push(redirectPaths[userRole!] || '/auth/login');
         }
     }, [isAuthenticated, isLoading, userRole, router]);
