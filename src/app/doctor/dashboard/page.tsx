@@ -6,7 +6,10 @@ import { useRouter } from 'next/navigation';
 import { Phone, UserCircle } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { appointmentOperation, AxonHealthcareUtils } from '@/lib/BE-library/main';
+import {
+  appointmentOperation,
+  AxonHealthcareUtils,
+} from '@/lib/BE-library/main';
 import { DoctorAppointmentResponse } from '@/lib/BE-library/interfaces';
 
 type DoctorAppointmentDTO = {
@@ -37,17 +40,19 @@ export default function DoctorDashboard() {
       try {
         // Gọi API lấy appointments của doctor
         const apiResult = await appointmentOperation.getDoctorAppointments();
-        
+
         if (apiResult.success && apiResult.data) {
           // Chuyển đổi API data sang format UI hiện tại
           const transformedAppointments: DoctorAppointmentDTO[] = apiResult.data
-            .filter(apt => apt.status === 'SCHEDULED') // Chỉ lấy appointments sắp tới
+            .filter((apt) => apt.status === 'SCHEDULED') // Chỉ lấy appointments sắp tới
             .slice(0, 3) // Chỉ hiển thị 3 appointments đầu tiên cho dashboard
-            .map(apt => {
+            .map((apt) => {
               // Chuyển đổi timeSlot thành startTime và endTime
-              const timeRange = appointmentOperation.getTimeSlotDisplay(apt.timeSlot);
+              const timeRange = appointmentOperation.getTimeSlotDisplay(
+                apt.timeSlot
+              );
               const [startTime, endTime] = timeRange.split('-');
-              
+
               return {
                 appointmentId: apt.appointmentId,
                 startTime: startTime,
@@ -83,10 +88,10 @@ export default function DoctorDashboard() {
 
   return (
     <>
-      {/* ✅ Thống kê nhanh */}
+      {/* Thống kê nhanh */}
       <DashboardStats loading={loading} />
 
-      {/* ✅ Lịch hẹn hôm nay */}
+      {/* Lịch hẹn hôm nay */}
       <Card className="shadow-sm border border-gray-200">
         <CardHeader>
           <CardTitle className="text-xl font-semibold">
@@ -124,19 +129,24 @@ function DashboardStats({ loading }: { loading: boolean }) {
     const fetchStats = async () => {
       try {
         const apiResult = await appointmentOperation.getDoctorAppointments();
-        
+
         if (apiResult.success && apiResult.data) {
           const allAppointments = apiResult.data;
           const today = AxonHealthcareUtils.formatDateForAPI(new Date());
-          
+
           // Tính toán thống kê từ API data
           const calculatedStats = {
             totalAppointments: allAppointments.length,
-            scheduled: allAppointments.filter(apt => apt.status === 'SCHEDULED').length,
-            completed: allAppointments.filter(apt => apt.status === 'COMPLETED').length,
-            patients: new Set(allAppointments.map(apt => apt.appointmentId)).size, // Unique patients (dùng appointmentId tạm)
+            scheduled: allAppointments.filter(
+              (apt) => apt.status === 'SCHEDULED'
+            ).length,
+            completed: allAppointments.filter(
+              (apt) => apt.status === 'COMPLETED'
+            ).length,
+            patients: new Set(allAppointments.map((apt) => apt.appointmentId))
+              .size, // Unique patients (dùng appointmentId tạm)
           };
-          
+
           setStats(calculatedStats);
         }
       } catch (error) {
@@ -166,7 +176,10 @@ function DashboardStats({ loading }: { loading: boolean }) {
 
   return (
     <div className="grid grid-cols-4 gap-4">
-      <StatCard title="Tổng lịch hẹn" value={stats.totalAppointments.toString()} />
+      <StatCard
+        title="Tổng lịch hẹn"
+        value={stats.totalAppointments.toString()}
+      />
       <StatCard title="Sắp tới" value={stats.scheduled.toString()} />
       <StatCard title="Hoàn thành" value={stats.completed.toString()} />
       <StatCard title="Bệnh nhân" value={stats.patients.toString()} />
@@ -198,7 +211,7 @@ function AppointmentItem({
 }) {
   // Xử lý hiển thị phone chỉ khi không phải placeholder
   const shouldShowPhone = patient.phone && patient.phone !== '--- --- ---';
-  
+
   return (
     <div className="flex justify-between items-center p-4 rounded-lg border bg-white shadow-sm">
       <div className="flex items-center gap-3">

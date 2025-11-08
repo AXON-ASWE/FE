@@ -6,16 +6,20 @@ import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { 
-  appointmentOperation, 
+import {
+  appointmentOperation,
   doctorOperation,
-  AxonHealthcareUtils 
+  AxonHealthcareUtils,
 } from '@/lib/BE-library/main';
-import { 
-  DoctorResponse, 
-  AvailableTimeSlotsResponse 
+import {
+  DoctorResponse,
+  AvailableTimeSlotsResponse,
 } from '@/lib/BE-library/interfaces';
-import { getAppointmentData, clearAppointmentData, AppointmentData } from '@/lib/appointment-storage';
+import {
+  getAppointmentData,
+  clearAppointmentData,
+  AppointmentData,
+} from '@/lib/appointment-storage';
 
 export default function BookAppointmentPage() {
   const router = useRouter();
@@ -25,26 +29,25 @@ export default function BookAppointmentPage() {
   const [doctor, setDoctor] = useState<DoctorResponse | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<number | null>(null);
+  const [appointmentNotesInput, setAppointmentNotesInput] = useState('');
   const [availableTimeSlots, setAvailableTimeSlots] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [creatingAppointment, setCreatingAppointment] = useState(false);
-  const [storedAppointmentData, setStoredAppointmentData] = useState<AppointmentData | null>(null);
+  const [storedAppointmentData, setStoredAppointmentData] =
+    useState<AppointmentData | null>(null);
 
-  
   useEffect(() => {
     const storedData = getAppointmentData();
     if (storedData) {
       setStoredAppointmentData(storedData);
-      
-      
+
       if (storedData.selectedDoctor.id !== doctorId) {
         console.warn('Stored doctor ID does not match current page doctor ID');
       }
     }
   }, [doctorId]);
 
-  
   useEffect(() => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -52,13 +55,12 @@ export default function BookAppointmentPage() {
     setSelectedDate(formattedDate);
   }, []);
 
-  
   useEffect(() => {
     const loadDoctor = async () => {
       try {
         setLoading(true);
         const storedData = getAppointmentData();
-        if (storedData && storedData.selectedDoctor.id === doctorId) {       
+        if (storedData && storedData.selectedDoctor.id === doctorId) {
           setDoctor(storedData.selectedDoctor);
         } else {
           const mockDoctor: DoctorResponse = {
@@ -68,9 +70,9 @@ export default function BookAppointmentPage() {
             departmentName: doctorId <= 2 ? 'Thần kinh' : 'Tim mạch',
             experience: 10 + (doctorId % 5),
             doctorEmail: `doctor${doctorId}@hospital.com`,
-            doctorPhone: `0${900000000 + doctorId}`
+            doctorPhone: `0${900000000 + doctorId}`,
           };
-          
+
           setDoctor(mockDoctor);
         }
       } catch (error) {
@@ -85,14 +87,16 @@ export default function BookAppointmentPage() {
     }
   }, [doctorId]);
 
-  
   useEffect(() => {
     const loadAvailableSlots = async () => {
       if (!selectedDate || !doctorId) return;
 
       setLoadingSlots(true);
       try {
-        const result = await appointmentOperation.getAvailableTimeSlots(doctorId, selectedDate);
+        const result = await appointmentOperation.getAvailableTimeSlots(
+          doctorId,
+          selectedDate
+        );
         if (result.success && result.data) {
           setAvailableTimeSlots(result.data.listOfAvailableTimeSlots);
         } else {
@@ -109,35 +113,38 @@ export default function BookAppointmentPage() {
     loadAvailableSlots();
   }, [selectedDate, doctorId]);
 
-  
   const handleCreateAppointment = async () => {
     if (!selectedDate || !selectedTimeSlot || !doctorId) return;
 
     setCreatingAppointment(true);
     try {
-      
-      let appointmentNotes = 'Đặt lịch qua website';
-      if (storedAppointmentData) {
-        const symptoms = storedAppointmentData.selectedSymptoms.map(s => s.name).join(', ');
-        const departments = storedAppointmentData.selectedDepartments.map(d => d.departmentName).join(', ');
+      let appointmentNotes = appointmentNotesInput;
+
+      if (!appointmentNotes && storedAppointmentData) {
+        const symptoms = storedAppointmentData.selectedSymptoms
+          .map((s) => s.name)
+          .join(', ');
+        const departments = storedAppointmentData.selectedDepartments
+          .map((d) => d.departmentName)
+          .join(', ');
+
         appointmentNotes = `Đặt lịch qua website
-            Triệu chứng: ${symptoms}
-            Chuyên khoa đã chọn: ${departments}
-            Thời gian đặt lịch: ${new Date(storedAppointmentData.timestamp).toLocaleString('vi-VN')}`;
+        Triệu chứng: ${symptoms}
+        Chuyên khoa đã chọn: ${departments}
+        Thời gian đặt lịch: ${new Date(storedAppointmentData.timestamp).toLocaleString('vi-VN')}`;
       }
 
       const result = await appointmentOperation.createAppointment({
         doctorId,
         date: selectedDate,
         timeSlot: selectedTimeSlot,
-        notes: appointmentNotes
+        notes: appointmentNotes,
       });
 
       if (result.success) {
-        
         clearAppointmentData();
         alert('Đặt lịch thành công!');
-        router.push('/'); 
+        router.push('/');
       } else {
         alert(`Lỗi: ${result.message}`);
       }
@@ -230,14 +237,13 @@ export default function BookAppointmentPage() {
               >
                 <ArrowLeft className="w-4 h-4" /> Quay lại
               </Button>
-              
+
               {!storedAppointmentData && (
                 <div className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-lg">
                   ⚠️ Không có thông tin từ trang tìm kiếm
                 </div>
               )}
             </div>
-
 
             <h3 className="text-xl font-semibold text-gray-900 mb-6">
               Select Date & Time
@@ -257,7 +263,7 @@ export default function BookAppointmentPage() {
                   min={AxonHealthcareUtils.formatDateForAPI(new Date())}
                   onChange={(e) => {
                     setSelectedDate(e.target.value);
-                    setSelectedTimeSlot(null); 
+                    setSelectedTimeSlot(null);
                   }}
                   className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500"
                 />
@@ -279,39 +285,48 @@ export default function BookAppointmentPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {/* Hiển thị tất cả time slot từ 1-16 */}
-                      {Array.from({ length: 16 }, (_, index) => index + 1).map((timeSlot) => {
-                        const isAvailable = availableTimeSlots.includes(timeSlot);
-                        const isSelected = selectedTimeSlot === timeSlot;
-                        
-                        return (
-                          <button
-                            key={timeSlot}
-                            onClick={() => isAvailable ? setSelectedTimeSlot(timeSlot) : null}
-                            disabled={!isAvailable}
-                            className={cn(
-                              'px-3 py-2 border rounded-lg text-sm font-medium transition relative',
-                              isSelected && isAvailable
-                                ? 'bg-blue-600 text-white border-blue-600'
-                                : isAvailable
-                                ? 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50 hover:border-blue-300'
-                                : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
-                            )}
-                          >
-                            <div className="flex flex-col items-center">
-                              <span className="text-xs">
-                                {appointmentOperation.getTimeSlotDisplay(timeSlot)}
-                              </span>
-                              {/* {!isAvailable && (
+                      {Array.from({ length: 16 }, (_, index) => index + 1).map(
+                        (timeSlot) => {
+                          const isAvailable =
+                            availableTimeSlots.includes(timeSlot);
+                          const isSelected = selectedTimeSlot === timeSlot;
+
+                          return (
+                            <button
+                              key={timeSlot}
+                              onClick={() =>
+                                isAvailable
+                                  ? setSelectedTimeSlot(timeSlot)
+                                  : null
+                              }
+                              disabled={!isAvailable}
+                              className={cn(
+                                'px-3 py-2 border rounded-lg text-sm font-medium transition relative',
+                                isSelected && isAvailable
+                                  ? 'bg-blue-600 text-white border-blue-600'
+                                  : isAvailable
+                                    ? 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50 hover:border-blue-300'
+                                    : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50'
+                              )}
+                            >
+                              <div className="flex flex-col items-center">
+                                <span className="text-xs">
+                                  {appointmentOperation.getTimeSlotDisplay(
+                                    timeSlot
+                                  )}
+                                </span>
+                                {/* {!isAvailable && (
                                 <span className="text-xs mt-1 text-red-400 font-normal">
                                   Đã bận
                                 </span>
                               )} */}
-                            </div>
-                          </button>
-                        );
-                      })}
+                              </div>
+                            </button>
+                          );
+                        }
+                      )}
                     </div>
-                    
+
                     {/* Thông tin về lịch */}
                     <div className="flex items-center justify-between text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
                       <div className="flex items-center gap-4">
@@ -335,7 +350,9 @@ export default function BookAppointmentPage() {
 
                     {availableTimeSlots.length === 0 && (
                       <div className="text-center py-4 text-amber-600 bg-amber-50 rounded-lg">
-                        <p className="font-medium">Không có lịch trống cho ngày này</p>
+                        <p className="font-medium">
+                          Không có lịch trống cho ngày này
+                        </p>
                         <p className="text-sm">Vui lòng chọn ngày khác</p>
                       </div>
                     )}
@@ -347,15 +364,34 @@ export default function BookAppointmentPage() {
                 )}
               </div>
 
+              {/* Notes input */}
+              <div>
+                <h4 className="flex items-center gap-2 text-gray-700 font-medium mb-3">
+                  Ghi chú cho bác sĩ
+                </h4>
+
+                <textarea
+                  rows={3}
+                  value={appointmentNotesInput}
+                  onChange={(e) => setAppointmentNotesInput(e.target.value)}
+                  placeholder="Nhập mô tả triệu chứng hoặc yêu cầu thêm..."
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:ring-2 focus:ring-blue-500 resize-none"
+                />
+              </div>
+
               <div className="pt-6">
                 <Button
                   onClick={handleCreateAppointment}
-                  disabled={!selectedDate || !selectedTimeSlot || creatingAppointment}
+                  disabled={
+                    !selectedDate || !selectedTimeSlot || creatingAppointment
+                  }
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50"
                 >
-                  {creatingAppointment ? 'Đang đặt lịch...' : 'Xác nhận đặt lịch'}
+                  {creatingAppointment
+                    ? 'Đang đặt lịch...'
+                    : 'Xác nhận đặt lịch'}
                 </Button>
-                
+
                 {selectedDate && selectedTimeSlot && (
                   <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                     <p className="text-sm text-blue-800">
@@ -365,7 +401,10 @@ export default function BookAppointmentPage() {
                       Ngày: {new Date(selectedDate).toLocaleDateString('vi-VN')}
                     </p>
                     <p className="text-sm text-blue-700">
-                      Giờ: {appointmentOperation.getTimeSlotDisplay(selectedTimeSlot)}
+                      Giờ:{' '}
+                      {appointmentOperation.getTimeSlotDisplay(
+                        selectedTimeSlot
+                      )}
                     </p>
                     <p className="text-sm text-blue-700">
                       Bác sĩ: {doctor.doctorName}
