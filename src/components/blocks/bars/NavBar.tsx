@@ -123,11 +123,6 @@ export function Navbar() {
                   </DropdownMenuLabel>
 
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
-                    <User className="mr-2" size={16} />
-                    Thông tin cá nhân
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
 
                   {/* LOGOUT */}
                   <DropdownMenuItem
