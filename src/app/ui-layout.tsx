@@ -10,9 +10,9 @@ export default function UILayout({ children }: { children: React.ReactNode }) {
 
   if (status === 'loading') return <div>Loading...</div>;
 
-  const role = session?.role ?? 'patient';
+  const role = session?.role ?? 'PATIENT';
 
-  if (role === 'patient') {
+  if (role === 'PATIENT') {
     return (
       <>
         <Navbar />
@@ -26,7 +26,6 @@ export default function UILayout({ children }: { children: React.ReactNode }) {
     <>
       <div className="flex min-h-screen">
         <Sidebar className="w-64" />
-
         <main className="flex-1 p-4">{children}</main>
       </div>
 

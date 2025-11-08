@@ -166,17 +166,18 @@ export default function FindPage() {
       selectedDoctor: doctor,
       timestamp: new Date().toISOString(),
     };
+    console.log('Saving appointment data:', appointmentData);
 
     const success = saveAppointmentData(appointmentData);
     
     if (success) {
       // Chuyển hướng đến trang đặt lịch
-      router.push(`/book/${doctor.id}`);
+      router.push(`/book/${doctor.userId}`);
     } else {
       // Hiển thị thông báo lỗi hoặc xử lý lỗi
       console.error('Failed to save appointment data');
       // Vẫn chuyển hướng nhưng không có dữ liệu được lưu
-      router.push(`/book/${doctor.id}`);
+      router.push(`/book/${doctor.userId}`);
     }
   };
 
@@ -346,7 +347,7 @@ export default function FindPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {doctors.map((doctor) => (
                   <Card
-                    key={doctor.id}
+                    key={doctor.doctorId}
                     className="border border-gray-200 hover:shadow-lg"
                   >
                     <CardContent className="p-6">

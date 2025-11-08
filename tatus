@@ -1,0 +1,132 @@
+[1mdiff --cc src/app/(client)/book/[id]/page.tsx[m
+[1mindex 9faf72f,3d88725..0000000[m
+[1m--- a/src/app/(client)/book/[id]/page.tsx[m
+[1m+++ b/src/app/(client)/book/[id]/page.tsx[m
+[36m@@@ -42,7 -37,8 +42,7 @@@[m [mexport default function BookAppointment[m
+      if (storedData) {[m
+        setStoredAppointmentData(storedData);[m
+  [m
+[31m-       if (storedData.selectedDoctor.id !== doctorId) {[m
+[31m -[m
+[32m+       if (storedData.selectedDoctor.doctorId !== doctorId) {[m
+          console.warn('Stored doctor ID does not match current page doctor ID');[m
+        }[m
+      }[m
+[36m@@@ -60,7 -58,7 +60,7 @@@[m
+        try {[m
+          setLoading(true);[m
+          const storedData = getAppointmentData();[m
+[31m-         if (storedData && storedData.selectedDoctor.id === doctorId) {[m
+[31m -        if (storedData && storedData.selectedDoctor.doctorId === doctorId) {       [m
+[32m++        if (storedData && storedData.selectedDoctor.doctorId === doctorId) {[m
+            setDoctor(storedData.selectedDoctor);[m
+          } else {[m
+            const mockDoctor: DoctorResponse = {[m
+[1mdiff --cc src/components/widgets/auth/SignUpForm.tsx[m
+[1mindex b22b0cb,c2af242..0000000[m
+[1m--- a/src/components/widgets/auth/SignUpForm.tsx[m
+[1m+++ b/src/components/widgets/auth/SignUpForm.tsx[m
+[36m@@@ -86,20 -83,27 +86,26 @@@[m [mexport const SignUpForm = () => [m
+        const result = await authOperation.patientRegister(registrationPayload);[m
+  [m
+        if (result.success && result.data) {[m
+[31m -        // Store token in cookie[m
+          setTokenCookie(result.data.accessToken, result.data.expiration);[m
+  [m
+[31m -        setSuccess(`Đăng ký thành công với vai trò ${result.data.role}! Đang chuyển hướng đến trang chủ...`);[m
+[31m -        [m
+[32m +        setSuccess([m
+[32m +          `Đăng ký thành công với vai trò ${result.data.role}! Đang chuyển hướng đến trang chủ...`[m
+[32m +        );[m
+[32m +[m
+          setTimeout(() => {[m
+[31m-           router.push('/dashboard/home');[m
+[31m -          if (result && result.data && result.data.role == "PATIENT") {[m
+[31m -            router.push("/");[m
+[31m -          } else if( result && result.data && result.data.role == "DOCTOR") {[m
+[31m -            router.push("/doctors/dashboard");[m
+[31m -          }[m
+[31m -          else {[m
+[31m -            router.push("/admin/dashboard");[m
+[32m++          if (result && result.data && result.data.role == 'PATIENT') {[m
+[32m++            router.push('/');[m
+[32m++          } else if (result && result.data && result.data.role == 'DOCTOR') {[m
+[32m++            router.push('/doctors/dashboard');[m
+[32m++          } else {[m
+[32m++            router.push('/admin/dashboard');[m
+[32m+           }[m
+          }, 1500);[m
+        } else {[m
+[31m -        setError(result.message || "Đăng ký thất bại. Vui lòng thử lại.");[m
+[32m +        setError(result.message || 'Đăng ký thất bại. Vui lòng thử lại.');[m
+        }[m
+      } catch (err: any) {[m
+[31m -      console.error("Registration error:", err);[m
+[31m -      setError(err.message || "Đăng ký thất bại. Vui lòng thử lại.");[m
+[32m +      setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');[m
+      }[m
+  [m
+      setLoading(false);[m
+[1mdiff --cc src/lib/BE-library/main.ts[m
+[1mindex 012f51d,91cbc5f..0000000[m
+[1m--- a/src/lib/BE-library/main.ts[m
+[1m+++ b/src/lib/BE-library/main.ts[m
+[36m@@@ -120,13 -121,12 +120,13 @@@[m [mclass AuthOperation [m
+   */[m
+  class AdminOperation {[m
+    /**[m
+[31m-    * Admin Ping Test[m
+[32m+    * Admin Health Check[m
+     * GET /api/admin/ping[m
+     */[m
+[31m-   async adminPing(): Promise<ApiResponse<string>> {[m
+[32m+   async ping(): Promise<ApiResponse<string>> {[m
+      try {[m
+[31m -      const response: AxiosResponse<string> = await apiClient.get('/api/admin/ping');[m
+[32m +      const response: AxiosResponse<string> =[m
+[32m +        await apiClient.get('/api/admin/ping');[m
+        return {[m
+          success: true,[m
+          data: response.data,[m
+[36m@@@ -138,17 -138,16 +138,18 @@@[m
+    }[m
+  [m
+    /**[m
+[31m-    * Admin Registration (Initial setup)[m
+[32m+    * Admin Registration (Setup only)[m
+     * POST /api/admin/register[m
+     */[m
+[31m -  async adminRegister(payload: AdminRegistrationPayload): Promise<ApiResponse<AuthResponse>> {[m
+[32m +  async adminRegister([m
+[32m +    payload: AdminRegistrationPayload[m
+[32m +  ): Promise<ApiResponse<AuthResponse>> {[m
+      try {[m
+[31m-       const response: AxiosResponse<AuthResponse> = await apiClient.post([m
+[31m-         '/api/admin/register',[m
+[32m+       const response: AxiosResponse<AuthResponse> = await axios.post([m
+[32m+         `${BASE_URL}/api/admin/register`,[m
+          payload[m
+        );[m
+[32m+ [m
+        return {[m
+          success: true,[m
+          data: response.data,[m
+[36m@@@ -307,12 -291,12 +308,12 @@@[m
+     * Create Doctor (Admin)[m
+     * POST /api/admin/doctor[m
+     */[m
+[31m -  async createDoctorAdmin(payload: CreateDoctorPayload): Promise<ApiResponse<{ success: boolean; message: string }>> {[m
+[32m +  async createDoctorAdmin([m
+[32m +    payload: CreateDoctorPayload[m
+[32m +  ): Promise<ApiResponse<{ success: boolean; message: string }>> {[m
+      try {[m
+[31m -      const response: AxiosResponse<{ success: boolean; message: string }> = await apiClient.post([m
+[31m -        '/api/admin/doctor',[m
+[31m -        payload[m
+[31m -      );[m
+[32m +      const response: AxiosResponse<{ success: boolean; message: string }> =[m
+[31m-         await apiClient.post('/api/doctor', payload);[m
+[32m++        await apiClient.post('/api/admin/doctor', payload);[m
+        return {[m
+          success: true,[m
+          data: response.data,[m

@@ -14,6 +14,7 @@ const STORAGE_KEY = 'appointmentData';
  */
 export const saveAppointmentData = (data: AppointmentData): boolean => {
   try {
+    console.log('Saving appointment data to localStorage:', data);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     
     return true;

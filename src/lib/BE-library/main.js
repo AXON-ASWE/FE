@@ -52,7 +52,7 @@ function getAccessToken() {
     return null;
 }
 exports.getAccessToken = getAccessToken;
-var BASE_URL = 'http://localhost:8080';
+var BASE_URL = 'http://172.20.10.10:8080';
 exports.BASE_URL = BASE_URL;
 var apiClient = axios_1.default.create({
     baseURL: BASE_URL,
@@ -145,10 +145,10 @@ var AdminOperation = /** @class */ (function () {
     function AdminOperation() {
     }
     /**
-     * Admin Ping Test
+     * Admin Health Check
      * GET /api/admin/ping
      */
-    AdminOperation.prototype.adminPing = function () {
+    AdminOperation.prototype.ping = function () {
         return __awaiter(this, void 0, void 0, function () {
             var response, error_3;
             return __generator(this, function (_a) {
@@ -172,7 +172,7 @@ var AdminOperation = /** @class */ (function () {
         });
     };
     /**
-     * Admin Registration (Initial setup)
+     * Admin Registration (Setup only)
      * POST /api/admin/register
      */
     AdminOperation.prototype.adminRegister = function (payload) {
@@ -182,7 +182,7 @@ var AdminOperation = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, apiClient.post('/api/admin/register', payload)];
+                        return [4 /*yield*/, axios_1.default.post("".concat(BASE_URL, "/api/admin/register"), payload)];
                     case 1:
                         response = _a.sent();
                         return [2 /*return*/, {
@@ -397,7 +397,7 @@ var AdminOperation = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, apiClient.post('/api/doctor', payload)];
+                        return [4 /*yield*/, apiClient.post('/api/admin/doctor', payload)];
                     case 1:
                         response = _a.sent();
                         return [2 /*return*/, {

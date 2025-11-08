@@ -93,7 +93,13 @@ export const SignUpForm = () => {
         );
 
         setTimeout(() => {
-          router.push('/dashboard/home');
+          if (result && result.data && result.data.role == 'PATIENT') {
+            router.push('/');
+          } else if (result && result.data && result.data.role == 'DOCTOR') {
+            router.push('/doctors/dashboard');
+          } else {
+            router.push('/admin/dashboard');
+          }
         }, 1500);
       } else {
         setError(result.message || 'Đăng ký thất bại. Vui lòng thử lại.');

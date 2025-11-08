@@ -41,7 +41,7 @@ function getAccessToken(): string | null {
   return null;
 }
 
-const BASE_URL = 'http://localhost:8080';
+const BASE_URL = 'http://172.20.10.10:8080';
 const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -120,10 +120,10 @@ class AuthOperation {
  */
 class AdminOperation {
   /**
-   * Admin Ping Test
+   * Admin Health Check
    * GET /api/admin/ping
    */
-  async adminPing(): Promise<ApiResponse<string>> {
+  async ping(): Promise<ApiResponse<string>> {
     try {
       const response: AxiosResponse<string> =
         await apiClient.get('/api/admin/ping');
@@ -138,17 +138,18 @@ class AdminOperation {
   }
 
   /**
-   * Admin Registration (Initial setup)
+   * Admin Registration (Setup only)
    * POST /api/admin/register
    */
   async adminRegister(
     payload: AdminRegistrationPayload
   ): Promise<ApiResponse<AuthResponse>> {
     try {
-      const response: AxiosResponse<AuthResponse> = await apiClient.post(
-        '/api/admin/register',
+      const response: AxiosResponse<AuthResponse> = await axios.post(
+        `${BASE_URL}/api/admin/register`,
         payload
       );
+
       return {
         success: true,
         data: response.data,
@@ -312,7 +313,7 @@ class AdminOperation {
   ): Promise<ApiResponse<{ success: boolean; message: string }>> {
     try {
       const response: AxiosResponse<{ success: boolean; message: string }> =
-        await apiClient.post('/api/doctor', payload);
+        await apiClient.post('/api/admin/doctor', payload);
       return {
         success: true,
         data: response.data,
