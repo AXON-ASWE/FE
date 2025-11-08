@@ -26,7 +26,6 @@ export default function UILayout({ children }: { children: React.ReactNode }) {
     <>
       <div className="flex min-h-screen">
         <Sidebar className="w-64" />
-
         <main className="flex-1 p-4">{children}</main>
       </div>
 

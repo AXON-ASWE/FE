@@ -34,7 +34,8 @@ export interface CreateDoctorPayload {
 }
 
 export interface DoctorResponse {
-    id: number;
+    userId: number;
+    doctorId: number;
     doctorName: string;
     departmentId: number;
     departmentName: string;
@@ -58,13 +59,12 @@ export interface DetailedDoctorResponse {
 }
 
 export interface UpdateDoctorPayload {
-    doctorName: string;
-    email: string;
+    fullName: string;
     phone: string;
+    specialization: string;
+    experienceYears: number;
+    qualifications: string;
     departmentId: number;
-    specialization?: string;
-    experience?: number;
-    qualifications?: string;
 }
 
 // Appointment interfaces

@@ -83,7 +83,6 @@ export function Sidebar({ className = '' }: SidebarProps) {
       open: openUserMenu,
       toggle: () => setOpenUserMenu((v) => !v),
       children: [
-        { href: '/admin/users/admin', label: 'Admin', icon: <User /> },
         {
           href: '/admin/users/doctor',
           label: 'Bác sĩ',

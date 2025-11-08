@@ -36,9 +36,9 @@ export default function BookAppointmentPage() {
     const storedData = getAppointmentData();
     if (storedData) {
       setStoredAppointmentData(storedData);
-      
-      
-      if (storedData.selectedDoctor.id !== doctorId) {
+
+
+      if (storedData.selectedDoctor.doctorId !== doctorId) {
         console.warn('Stored doctor ID does not match current page doctor ID');
       }
     }
@@ -58,11 +58,12 @@ export default function BookAppointmentPage() {
       try {
         setLoading(true);
         const storedData = getAppointmentData();
-        if (storedData && storedData.selectedDoctor.id === doctorId) {       
+        if (storedData && storedData.selectedDoctor.doctorId === doctorId) {       
           setDoctor(storedData.selectedDoctor);
         } else {
           const mockDoctor: DoctorResponse = {
-            id: doctorId,
+            userId: 1,
+            doctorId: 1,
             doctorName: `Bác sĩ ${doctorId === 1 ? 'Sarah Johnson' : doctorId === 2 ? 'Michael Chen' : 'David Lee'}`,
             departmentId: doctorId <= 2 ? 1 : 2,
             departmentName: doctorId <= 2 ? 'Thần kinh' : 'Tim mạch',

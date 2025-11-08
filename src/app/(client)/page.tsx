@@ -131,12 +131,12 @@ export default function Home() {
     
     if (success) {
       // Chuyển hướng đến trang đặt lịch
-      router.push(`/book/${doctor.id}`);
+      router.push(`/book/${doctor.doctorId}`);
     } else {
       // Hiển thị thông báo lỗi hoặc xử lý lỗi
       console.error('Failed to save appointment data');
       // Vẫn chuyển hướng nhưng không có dữ liệu được lưu
-      router.push(`/book/${doctor.id}`);
+      router.push(`/book/${doctor.doctorId}`);
     }
   };
 
@@ -290,13 +290,13 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedDoctors.map((doctor) => (
               <Card
-                key={doctor.id}
+                key={doctor.doctorId}
                 className="border border-gray-200 hover:shadow-xl transition-shadow"
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4 mb-4">
                     <img
-                      src={getDefaultDoctorImage(doctor.id)}
+                      src={getDefaultDoctorImage(doctor.doctorId)}
                       alt={doctor.doctorName}
                       className="w-16 h-16 rounded-full object-cover"
                     />
