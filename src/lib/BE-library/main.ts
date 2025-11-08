@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse } from 'axios';
 import {
   LoginPayload,
   PatientRegistrationPayload,
@@ -26,9 +26,8 @@ import {
   UpdateDoctorPayload,
   DetailedSymptomResponse,
   CreateSymptomPayload,
-  UpdateSymptomPayload
-} from "./interfaces";
-
+  UpdateSymptomPayload,
+} from './interfaces';
 
 function getAccessToken(): string | null {
   if (typeof document === 'undefined') return null;
@@ -50,7 +49,6 @@ const apiClient = axios.create({
   },
 });
 
-
 apiClient.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
@@ -59,18 +57,17 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-
 const handleApiError = (error: any, operation: string): ApiResponse => {
   console.error(`Error in ${operation}:`, error?.response?.data);
   return {
     success: false,
-    message: error?.response?.data?.message || error?.message || "An error occurred",
+    message:
+      error?.response?.data?.message || error?.message || 'An error occurred',
     status: error?.response?.status,
     timestamp: error?.response?.data?.timestamp,
     error: error?.response?.data?.error,
   };
 };
-
 
 class AuthOperation {
   /**
@@ -98,7 +95,9 @@ class AuthOperation {
    * Patient Registration
    * POST /api/patient/auth/register
    */
-  async patientRegister(payload: PatientRegistrationPayload): Promise<ApiResponse<AuthResponse>> {
+  async patientRegister(
+    payload: PatientRegistrationPayload
+  ): Promise<ApiResponse<AuthResponse>> {
     try {
       const response: AxiosResponse<AuthResponse> = await axios.post(
         `${BASE_URL}/api/patient/auth/register`,
@@ -126,7 +125,8 @@ class AdminOperation {
    */
   async ping(): Promise<ApiResponse<string>> {
     try {
-      const response: AxiosResponse<string> = await apiClient.get('/api/admin/ping');
+      const response: AxiosResponse<string> =
+        await apiClient.get('/api/admin/ping');
       return {
         success: true,
         data: response.data,
@@ -141,7 +141,9 @@ class AdminOperation {
    * Admin Registration (Setup only)
    * POST /api/admin/register
    */
-  async adminRegister(payload: AdminRegistrationPayload): Promise<ApiResponse<AuthResponse>> {
+  async adminRegister(
+    payload: AdminRegistrationPayload
+  ): Promise<ApiResponse<AuthResponse>> {
     try {
       const response: AxiosResponse<AuthResponse> = await axios.post(
         `${BASE_URL}/api/admin/register`,
@@ -164,7 +166,8 @@ class AdminOperation {
    */
   async getAllPatients(): Promise<ApiResponse<PatientResponse[]>> {
     try {
-      const response: AxiosResponse<PatientResponse[]> = await apiClient.get('/api/admin/patient');
+      const response: AxiosResponse<PatientResponse[]> =
+        await apiClient.get('/api/admin/patient');
       return {
         success: true,
         data: response.data,
@@ -179,7 +182,10 @@ class AdminOperation {
    * Update Patient
    * PUT /api/admin/patient/{patientId}
    */
-  async updatePatient(patientId: number, payload: UpdatePatientPayload): Promise<ApiResponse<PatientResponse>> {
+  async updatePatient(
+    patientId: number,
+    payload: UpdatePatientPayload
+  ): Promise<ApiResponse<PatientResponse>> {
     try {
       const response: AxiosResponse<PatientResponse> = await apiClient.put(
         `/api/admin/patient/${patientId}`,
@@ -201,7 +207,9 @@ class AdminOperation {
    */
   async deletePatient(patientId: number): Promise<ApiResponse<void>> {
     try {
-      const response = await apiClient.delete(`/api/admin/patient/${patientId}`);
+      const response = await apiClient.delete(
+        `/api/admin/patient/${patientId}`
+      );
       return {
         success: true,
         status: response.status,
@@ -217,7 +225,9 @@ class AdminOperation {
    */
   async getAllDepartments(): Promise<ApiResponse<DepartmentResponse[]>> {
     try {
-      const response: AxiosResponse<DepartmentResponse[]> = await apiClient.get('/api/admin/department');
+      const response: AxiosResponse<DepartmentResponse[]> = await apiClient.get(
+        '/api/admin/department'
+      );
       return {
         success: true,
         data: response.data,
@@ -232,7 +242,9 @@ class AdminOperation {
    * Create Department
    * POST /api/admin/department
    */
-  async createDepartment(payload: CreateDepartmentPayload): Promise<ApiResponse<DepartmentResponse>> {
+  async createDepartment(
+    payload: CreateDepartmentPayload
+  ): Promise<ApiResponse<DepartmentResponse>> {
     try {
       const response: AxiosResponse<DepartmentResponse> = await apiClient.post(
         '/api/admin/department',
@@ -252,7 +264,9 @@ class AdminOperation {
    * Get Department by ID
    * GET /api/admin/department/{departmentId}
    */
-  async getDepartmentById(departmentId: number): Promise<ApiResponse<DepartmentResponse>> {
+  async getDepartmentById(
+    departmentId: number
+  ): Promise<ApiResponse<DepartmentResponse>> {
     try {
       const response: AxiosResponse<DepartmentResponse> = await apiClient.get(
         `/api/admin/department/${departmentId}`
@@ -271,7 +285,10 @@ class AdminOperation {
    * Update Department
    * PUT /api/admin/department/{departmentId}
    */
-  async updateDepartment(departmentId: number, payload: UpdateDepartmentPayload): Promise<ApiResponse<DepartmentResponse>> {
+  async updateDepartment(
+    departmentId: number,
+    payload: UpdateDepartmentPayload
+  ): Promise<ApiResponse<DepartmentResponse>> {
     try {
       const response: AxiosResponse<DepartmentResponse> = await apiClient.put(
         `/api/admin/department/${departmentId}`,
@@ -291,12 +308,12 @@ class AdminOperation {
    * Create Doctor (Admin)
    * POST /api/admin/doctor
    */
-  async createDoctorAdmin(payload: CreateDoctorPayload): Promise<ApiResponse<{ success: boolean; message: string }>> {
+  async createDoctorAdmin(
+    payload: CreateDoctorPayload
+  ): Promise<ApiResponse<{ success: boolean; message: string }>> {
     try {
-      const response: AxiosResponse<{ success: boolean; message: string }> = await apiClient.post(
-        '/api/admin/doctor',
-        payload
-      );
+      const response: AxiosResponse<{ success: boolean; message: string }> =
+        await apiClient.post('/api/admin/doctor', payload);
       return {
         success: true,
         data: response.data,
@@ -313,7 +330,8 @@ class AdminOperation {
    */
   async getAllDoctorsAdmin(): Promise<ApiResponse<DoctorResponse[]>> {
     try {
-      const response: AxiosResponse<DoctorResponse[]> = await apiClient.get('/api/admin/doctor');
+      const response: AxiosResponse<DoctorResponse[]> =
+        await apiClient.get('/api/admin/doctor');
       return {
         success: true,
         data: response.data,
@@ -328,11 +346,12 @@ class AdminOperation {
    * Get Doctor by ID (Admin)
    * GET /api/admin/doctor/{id}
    */
-  async getDoctorByIdAdmin(doctorId: number): Promise<ApiResponse<DetailedDoctorResponse>> {
+  async getDoctorByIdAdmin(
+    doctorId: number
+  ): Promise<ApiResponse<DetailedDoctorResponse>> {
     try {
-      const response: AxiosResponse<DetailedDoctorResponse> = await apiClient.get(
-        `/api/admin/doctor/${doctorId}`
-      );
+      const response: AxiosResponse<DetailedDoctorResponse> =
+        await apiClient.get(`/api/admin/doctor/${doctorId}`);
       return {
         success: true,
         data: response.data,
@@ -347,12 +366,13 @@ class AdminOperation {
    * Update Doctor (Admin)
    * PUT /api/admin/doctor/{id}
    */
-  async updateDoctorAdmin(doctorId: number, payload: UpdateDoctorPayload): Promise<ApiResponse<DetailedDoctorResponse>> {
+  async updateDoctorAdmin(
+    doctorId: number,
+    payload: UpdateDoctorPayload
+  ): Promise<ApiResponse<DetailedDoctorResponse>> {
     try {
-      const response: AxiosResponse<DetailedDoctorResponse> = await apiClient.put(
-        `/api/admin/doctor/${doctorId}`,
-        payload
-      );
+      const response: AxiosResponse<DetailedDoctorResponse> =
+        await apiClient.put(`/api/admin/doctor/${doctorId}`, payload);
       return {
         success: true,
         data: response.data,
@@ -385,7 +405,8 @@ class AdminOperation {
    */
   async getAllSymptomsAdmin(): Promise<ApiResponse<SymptomResponse[]>> {
     try {
-      const response: AxiosResponse<SymptomResponse[]> = await apiClient.get('/api/admin/symptom');
+      const response: AxiosResponse<SymptomResponse[]> =
+        await apiClient.get('/api/admin/symptom');
       return {
         success: true,
         data: response.data,
@@ -400,11 +421,12 @@ class AdminOperation {
    * Get Symptom by ID (Admin)
    * GET /api/admin/symptom/{id}
    */
-  async getSymptomByIdAdmin(symptomId: number): Promise<ApiResponse<DetailedSymptomResponse>> {
+  async getSymptomByIdAdmin(
+    symptomId: number
+  ): Promise<ApiResponse<DetailedSymptomResponse>> {
     try {
-      const response: AxiosResponse<DetailedSymptomResponse> = await apiClient.get(
-        `/api/admin/symptom/${symptomId}`
-      );
+      const response: AxiosResponse<DetailedSymptomResponse> =
+        await apiClient.get(`/api/admin/symptom/${symptomId}`);
       return {
         success: true,
         data: response.data,
@@ -419,7 +441,9 @@ class AdminOperation {
    * Add New Symptom (Admin)
    * POST /api/admin/symptom
    */
-  async createSymptomAdmin(payload: CreateSymptomPayload): Promise<ApiResponse<SymptomResponse>> {
+  async createSymptomAdmin(
+    payload: CreateSymptomPayload
+  ): Promise<ApiResponse<SymptomResponse>> {
     try {
       const response: AxiosResponse<SymptomResponse> = await apiClient.post(
         '/api/admin/symptom',
@@ -439,7 +463,10 @@ class AdminOperation {
    * Update Symptom (Admin)
    * PUT /api/admin/symptom/{id}
    */
-  async updateSymptomAdmin(symptomId: number, payload: UpdateSymptomPayload): Promise<ApiResponse<SymptomResponse>> {
+  async updateSymptomAdmin(
+    symptomId: number,
+    payload: UpdateSymptomPayload
+  ): Promise<ApiResponse<SymptomResponse>> {
     try {
       const response: AxiosResponse<SymptomResponse> = await apiClient.put(
         `/api/admin/symptom/${symptomId}`,
@@ -461,7 +488,9 @@ class AdminOperation {
    */
   async deleteSymptomAdmin(symptomId: number): Promise<ApiResponse<void>> {
     try {
-      const response = await apiClient.delete(`/api/admin/symptom/${symptomId}`);
+      const response = await apiClient.delete(
+        `/api/admin/symptom/${symptomId}`
+      );
       return {
         success: true,
         status: response.status,
@@ -472,13 +501,14 @@ class AdminOperation {
   }
 }
 
-
 class DoctorOperation {
   /**
    * Get Doctors by Department
    * GET /doctor?departmentId={id}
    */
-  async getDoctorsByDepartment(departmentId: number): Promise<ApiResponse<DoctorResponse[]>> {
+  async getDoctorsByDepartment(
+    departmentId: number
+  ): Promise<ApiResponse<DoctorResponse[]>> {
     try {
       const response: AxiosResponse<DoctorResponse[]> = await apiClient.get(
         `/doctor?departmentId=${departmentId}`
@@ -498,12 +528,12 @@ class DoctorOperation {
    * Create Doctor Profile (Admin only)
    * POST /doctor/create
    */
-  async createDoctor(payload: CreateDoctorPayload): Promise<ApiResponse<{ success: boolean; message: string }>> {
+  async createDoctor(
+    payload: CreateDoctorPayload
+  ): Promise<ApiResponse<{ success: boolean; message: string }>> {
     try {
-      const response: AxiosResponse<{ success: boolean; message: string }> = await apiClient.post(
-        '/doctor/create',
-        payload
-      );
+      const response: AxiosResponse<{ success: boolean; message: string }> =
+        await apiClient.post('/doctor/create', payload);
 
       return {
         success: true,
@@ -516,7 +546,6 @@ class DoctorOperation {
   }
 }
 
-
 class AppointmentOperation {
   /**
    * Get Available Time Slots (Patient only)
@@ -527,9 +556,10 @@ class AppointmentOperation {
     date: string
   ): Promise<ApiResponse<AvailableTimeSlotsResponse>> {
     try {
-      const response: AxiosResponse<AvailableTimeSlotsResponse> = await apiClient.get(
-        `/appointment/available?doctorId=${doctorId}&date=${date}`
-      );
+      const response: AxiosResponse<AvailableTimeSlotsResponse> =
+        await apiClient.get(
+          `/appointment/available?doctorId=${doctorId}&date=${date}`
+        );
 
       return {
         success: true,
@@ -545,11 +575,12 @@ class AppointmentOperation {
    * Get Patient Appointments (Patient only)
    * GET /appointment/patient
    */
-  async getPatientAppointments(): Promise<ApiResponse<PatientAppointmentResponse[]>> {
+  async getPatientAppointments(): Promise<
+    ApiResponse<PatientAppointmentResponse[]>
+  > {
     try {
-      const response: AxiosResponse<PatientAppointmentResponse[]> = await apiClient.get(
-        '/appointment/patient'
-      );
+      const response: AxiosResponse<PatientAppointmentResponse[]> =
+        await apiClient.get('/appointment/patient');
 
       return {
         success: true,
@@ -565,11 +596,12 @@ class AppointmentOperation {
    * Get Doctor Appointments (Doctor only)
    * GET /appointment/doctor
    */
-  async getDoctorAppointments(): Promise<ApiResponse<DoctorAppointmentResponse[]>> {
+  async getDoctorAppointments(): Promise<
+    ApiResponse<DoctorAppointmentResponse[]>
+  > {
     try {
-      const response: AxiosResponse<DoctorAppointmentResponse[]> = await apiClient.get(
-        '/appointment/doctor'
-      );
+      const response: AxiosResponse<DoctorAppointmentResponse[]> =
+        await apiClient.get('/appointment/doctor');
 
       return {
         success: true,
@@ -585,12 +617,12 @@ class AppointmentOperation {
    * Create Appointment (Patient only)
    * POST /appointment/create
    */
-  async createAppointment(payload: CreateAppointmentPayload): Promise<ApiResponse<AppointmentCreatedResponse>> {
+  async createAppointment(
+    payload: CreateAppointmentPayload
+  ): Promise<ApiResponse<AppointmentCreatedResponse>> {
     try {
-      const response: AxiosResponse<AppointmentCreatedResponse> = await apiClient.post(
-        '/appointment/create',
-        payload
-      );
+      const response: AxiosResponse<AppointmentCreatedResponse> =
+        await apiClient.post('/appointment/create', payload);
 
       return {
         success: true,
@@ -673,7 +705,6 @@ class AppointmentOperation {
   }
 }
 
-
 class SymptomDepartmentOperation {
   /**
    * Get All Symptoms
@@ -681,7 +712,8 @@ class SymptomDepartmentOperation {
    */
   async getAllSymptoms(): Promise<ApiResponse<SymptomResponse[]>> {
     try {
-      const response: AxiosResponse<SymptomResponse[]> = await apiClient.get('/symptoms/names');
+      const response: AxiosResponse<SymptomResponse[]> =
+        await apiClient.get('/symptoms/names');
 
       return {
         success: true,
@@ -701,10 +733,8 @@ class SymptomDepartmentOperation {
     payload: SuggestDepartmentPayload
   ): Promise<ApiResponse<DepartmentSuggestionResponse[]>> {
     try {
-      const response: AxiosResponse<DepartmentSuggestionResponse[]> = await apiClient.post(
-        '/department/suggest',
-        payload
-      );
+      const response: AxiosResponse<DepartmentSuggestionResponse[]> =
+        await apiClient.post('/department/suggest', payload);
 
       return {
         success: true,
@@ -716,7 +746,6 @@ class SymptomDepartmentOperation {
     }
   }
 }
-
 
 export class AxonHealthcareUtils {
   /**
@@ -739,9 +768,8 @@ export class AxonHealthcareUtils {
   static hasRole(requiredRole: 'ADMIN' | 'DOCTOR' | 'PATIENT'): boolean {
     const token = getAccessToken();
     if (!token) return false;
-    
+
     try {
-      
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
@@ -763,7 +791,7 @@ export class AxonHealthcareUtils {
   static getUserRole(): 'ADMIN' | 'DOCTOR' | 'PATIENT' | null {
     const token = getAccessToken();
     if (!token) return null;
-    
+
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -786,7 +814,7 @@ export class AxonHealthcareUtils {
   static isTokenExpired(): boolean {
     const token = getAccessToken();
     if (!token) return true;
-    
+
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -805,11 +833,10 @@ export class AxonHealthcareUtils {
   }
 }
 
-
 // Create instances for export
 const authOperation = new AuthOperation();
 const adminOperation = new AdminOperation();
-const doctorOperation = new DoctorOperation();  
+const doctorOperation = new DoctorOperation();
 const appointmentOperation = new AppointmentOperation();
 const symptomDepartmentOperation = new SymptomDepartmentOperation();
 
@@ -821,5 +848,5 @@ export {
   adminOperation,
   doctorOperation,
   appointmentOperation,
-  symptomDepartmentOperation
+  symptomDepartmentOperation,
 };
