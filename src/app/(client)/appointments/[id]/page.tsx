@@ -10,7 +10,6 @@ import { appointmentOperation, doctorOperation } from '@/lib/BE-library/main';
 import { PatientAppointmentResponse, RescheduleAppointmentPayload } from '@/lib/BE-library/interfaces';
 
 export default function RescheduleAppointmentPage() {
-  console.log('📄 NORMAL ROUTE ACTIVATED - Full page is being used!');
   const router = useRouter();
   const params = useParams();
   const appointmentId = parseInt(params.id as string);

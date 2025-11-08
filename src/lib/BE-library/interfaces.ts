@@ -10,6 +10,12 @@ export interface PatientRegistrationPayload {
     fullName: string;
 }
 
+export interface AdminRegistrationPayload {
+    email: string;
+    password: string;
+    fullName: string;
+}
+
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;
@@ -35,6 +41,30 @@ export interface DoctorResponse {
     experience: number;
     doctorEmail: string;
     doctorPhone: string;
+}
+
+export interface DetailedDoctorResponse {
+    doctorId: number;
+    userId: number;
+    doctorName: string;
+    email: string;
+    phone: string;
+    departmentId: number;
+    departmentName: string;
+    specialization: string;
+    experience: number;
+    qualifications: string;
+    status: 'ACTIVE' | 'INACTIVE';
+}
+
+export interface UpdateDoctorPayload {
+    doctorName: string;
+    email: string;
+    phone: string;
+    departmentId: number;
+    specialization?: string;
+    experience?: number;
+    qualifications?: string;
 }
 
 // Appointment interfaces
@@ -93,6 +123,74 @@ export interface SuggestDepartmentPayload {
 export interface DepartmentSuggestionResponse {
     departmentId: number;
     departmentName: string;
+}
+
+// Patient interfaces
+export interface PatientResponse {
+    patientId: number;
+    userId: number;
+    email: string;
+    fullName: string;
+    phone?: string;
+    gender?: string;
+    dateOfBirth?: string;
+    address?: string;
+    emergencyContact?: string;
+    insuranceNumber?: string;
+    status: 'ACTIVE' | 'INACTIVE';
+    createdAt: string;
+}
+
+export interface UpdatePatientPayload {
+    email: string;
+    fullName: string;
+    phone?: string;
+    gender?: string;
+    dateOfBirth?: string;
+    address?: string;
+    emergencyContact?: string;
+    insuranceNumber?: string;
+    status: 'ACTIVE' | 'INACTIVE';
+}
+
+// Department interfaces  
+export interface DepartmentResponse {
+    departmentId: number;
+    departmentName: string;
+    departmentDescription?: string;
+    departmentLocation?: string;
+}
+
+export interface CreateDepartmentPayload {
+    departmentName: string;
+    departmentDescription?: string;
+    departmentLocation?: string;
+}
+
+export interface UpdateDepartmentPayload {
+    departmentName: string;
+    departmentDescription?: string;
+    departmentLocation?: string;
+}
+
+// Detailed Symptom interfaces
+export interface DetailedSymptomResponse {
+    id: number;
+    symptomName: string;
+    description?: string;
+    tag?: string;
+}
+
+export interface CreateSymptomPayload {
+    symptomName: string;
+    description?: string;
+    tag?: string;
+}
+
+export interface UpdateSymptomPayload {
+    symptomName: string;
+    description?: string;
+    tag?: string;
 }
 
 // Common response interface

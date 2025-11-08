@@ -14,7 +14,19 @@ import {
   SymptomResponse,
   SuggestDepartmentPayload,
   DepartmentSuggestionResponse,
-  ApiResponse
+  ApiResponse,
+  // Thêm các interface mới
+  AdminRegistrationPayload,
+  PatientResponse,
+  UpdatePatientPayload,
+  DepartmentResponse,
+  CreateDepartmentPayload,
+  UpdateDepartmentPayload,
+  DetailedDoctorResponse,
+  UpdateDoctorPayload,
+  DetailedSymptomResponse,
+  CreateSymptomPayload,
+  UpdateSymptomPayload
 } from "./interfaces";
 
 
@@ -100,6 +112,359 @@ class AuthOperation {
       };
     } catch (error: any) {
       return handleApiError(error, 'Patient Registration');
+    }
+  }
+}
+
+/**
+ * Admin Management Operations
+ */
+class AdminOperation {
+
+  /**
+   * Admin Ping Test
+   * GET /api/admin/ping
+   */
+  async adminPing(): Promise<ApiResponse<string>> {
+    try {
+      const response: AxiosResponse<string> = await apiClient.get('/api/admin/ping');
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Admin Ping');
+    }
+  }
+
+  /**
+   * Admin Registration (Initial setup)
+   * POST /api/admin/register
+   */
+  async adminRegister(payload: AdminRegistrationPayload): Promise<ApiResponse<AuthResponse>> {
+    try {
+      const response: AxiosResponse<AuthResponse> = await apiClient.post('/api/admin/register', payload);
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Admin Registration');
+    }
+  }
+
+  /**
+   * Get All Patients
+   * GET /api/admin/patient
+   */
+  async getAllPatients(): Promise<ApiResponse<PatientResponse[]>> {
+    try {
+      const response: AxiosResponse<PatientResponse[]> = await apiClient.get('/api/admin/patient');
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Get All Patients');
+    }
+  }
+
+  /**
+   * Update Patient
+   * PUT /api/admin/patient/{patientId}
+   */
+  async updatePatient(patientId: number, payload: UpdatePatientPayload): Promise<ApiResponse<PatientResponse>> {
+    try {
+      const response: AxiosResponse<PatientResponse> = await apiClient.put(
+        `/api/admin/patient/${patientId}`,
+        payload
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Update Patient');
+    }
+  }
+
+  /**
+   * Delete Patient (Soft Delete)
+   * DELETE /api/admin/patient/{patientId}
+   */
+  async deletePatient(patientId: number): Promise<ApiResponse<void>> {
+    try {
+      const response = await apiClient.delete(`/api/admin/patient/${patientId}`);
+      return {
+        success: true,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Delete Patient');
+    }
+  }
+
+  /**
+   * Get All Departments
+   * GET /api/admin/department
+   */
+  async getAllDepartments(): Promise<ApiResponse<DepartmentResponse[]>> {
+    try {
+      const response: AxiosResponse<DepartmentResponse[]> = await apiClient.get('/api/admin/department');
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Get All Departments');
+    }
+  }
+
+  /**
+   * Create Department
+   * POST /api/admin/department
+   */
+  async createDepartment(payload: CreateDepartmentPayload): Promise<ApiResponse<DepartmentResponse>> {
+    try {
+      const response: AxiosResponse<DepartmentResponse> = await apiClient.post(
+        '/api/admin/department',
+        payload
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Create Department');
+    }
+  }
+
+  /**
+   * Get Department by ID
+   * GET /api/admin/department/{departmentId}
+   */
+  async getDepartmentById(departmentId: number): Promise<ApiResponse<DepartmentResponse>> {
+    try {
+      const response: AxiosResponse<DepartmentResponse> = await apiClient.get(
+        `/api/admin/department/${departmentId}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Get Department by ID');
+    }
+  }
+
+  /**
+   * Update Department
+   * PUT /api/admin/department/{departmentId}
+   */
+  async updateDepartment(departmentId: number, payload: UpdateDepartmentPayload): Promise<ApiResponse<DepartmentResponse>> {
+    try {
+      const response: AxiosResponse<DepartmentResponse> = await apiClient.put(
+        `/api/admin/department/${departmentId}`,
+        payload
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Update Department');
+    }
+  }
+
+  /**
+   * Create Doctor (Admin)
+   * POST /api/admin/doctor
+   */
+  async createDoctorAdmin(payload: CreateDoctorPayload): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    try {
+      const response: AxiosResponse<{ success: boolean; message: string }> = await apiClient.post(
+        '/api/doctor',
+        payload
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Create Doctor (Admin)');
+    }
+  }
+
+  /**
+   * Get All Doctors (Admin)
+   * GET /api/admin/doctor
+   */
+  async getAllDoctorsAdmin(): Promise<ApiResponse<DoctorResponse[]>> {
+    try {
+      const response: AxiosResponse<DoctorResponse[]> = await apiClient.get('/api/admin/doctor');
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Get All Doctors (Admin)');
+    }
+  }
+
+  /**
+   * Get Doctor by ID (Admin)
+   * GET /api/admin/doctor/{id}
+   */
+  async getDoctorByIdAdmin(doctorId: number): Promise<ApiResponse<DetailedDoctorResponse>> {
+    try {
+      const response: AxiosResponse<DetailedDoctorResponse> = await apiClient.get(
+        `/api/admin/doctor/${doctorId}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Get Doctor by ID (Admin)');
+    }
+  }
+
+  /**
+   * Update Doctor (Admin)
+   * PUT /api/admin/doctor/{id}
+   */
+  async updateDoctorAdmin(doctorId: number, payload: UpdateDoctorPayload): Promise<ApiResponse<DetailedDoctorResponse>> {
+    try {
+      const response: AxiosResponse<DetailedDoctorResponse> = await apiClient.put(
+        `/api/admin/doctor/${doctorId}`,
+        payload
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Update Doctor (Admin)');
+    }
+  }
+
+  /**
+   * Delete Doctor (Admin - Soft Delete)
+   * DELETE /api/admin/doctor/{id}
+   */
+  async deleteDoctorAdmin(doctorId: number): Promise<ApiResponse<void>> {
+    try {
+      const response = await apiClient.delete(`/api/admin/doctor/${doctorId}`);
+      return {
+        success: true,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Delete Doctor (Admin)');
+    }
+  }
+
+  /**
+   * Get All Symptoms (Admin)
+   * GET /api/admin/symptom
+   */
+  async getAllSymptomsAdmin(): Promise<ApiResponse<SymptomResponse[]>> {
+    try {
+      const response: AxiosResponse<SymptomResponse[]> = await apiClient.get('/api/admin/symptom');
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Get All Symptoms (Admin)');
+    }
+  }
+
+  /**
+   * Get Symptom by ID (Admin)
+   * GET /api/admin/symptom/{id}
+   */
+  async getSymptomByIdAdmin(symptomId: number): Promise<ApiResponse<DetailedSymptomResponse>> {
+    try {
+      const response: AxiosResponse<DetailedSymptomResponse> = await apiClient.get(
+        `/api/admin/symptom/${symptomId}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Get Symptom by ID (Admin)');
+    }
+  }
+
+  /**
+   * Add New Symptom (Admin)
+   * POST /api/admin/symptom
+   */
+  async createSymptomAdmin(payload: CreateSymptomPayload): Promise<ApiResponse<SymptomResponse>> {
+    try {
+      const response: AxiosResponse<SymptomResponse> = await apiClient.post(
+        '/api/admin/symptom',
+        payload
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Create Symptom (Admin)');
+    }
+  }
+
+  /**
+   * Update Symptom (Admin)
+   * PUT /api/admin/symptom/{id}
+   */
+  async updateSymptomAdmin(symptomId: number, payload: UpdateSymptomPayload): Promise<ApiResponse<SymptomResponse>> {
+    try {
+      const response: AxiosResponse<SymptomResponse> = await apiClient.put(
+        `/api/admin/symptom/${symptomId}`,
+        payload
+      );
+      return {
+        success: true,
+        data: response.data,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Update Symptom (Admin)');
+    }
+  }
+
+  /**
+   * Delete Symptom (Admin)
+   * DELETE /api/admin/symptom/{id}
+   */
+  async deleteSymptomAdmin(symptomId: number): Promise<ApiResponse<void>> {
+    try {
+      const response = await apiClient.delete(`/api/admin/symptom/${symptomId}`);
+      return {
+        success: true,
+        status: response.status,
+      };
+    } catch (error: any) {
+      return handleApiError(error, 'Delete Symptom (Admin)');
     }
   }
 }
@@ -440,6 +805,7 @@ export class AxonHealthcareUtils {
 
 // Create instances for export
 const authOperation = new AuthOperation();
+const adminOperation = new AdminOperation();
 const doctorOperation = new DoctorOperation();  
 const appointmentOperation = new AppointmentOperation();
 const symptomDepartmentOperation = new SymptomDepartmentOperation();
@@ -449,6 +815,7 @@ export {
   apiClient,
   BASE_URL,
   authOperation,
+  adminOperation,
   doctorOperation,
   appointmentOperation,
   symptomDepartmentOperation

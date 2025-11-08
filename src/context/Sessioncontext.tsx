@@ -43,7 +43,7 @@ function extractUserFromToken(token: string) {
         );
         return JSON.parse(jsonPayload);
     } catch (error) {
-        console.error("Error decoding token:", error);
+        
         return {};
     }
 }
@@ -70,7 +70,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
                 const token = getAccessToken();
                 
                 if (!token) {
-                    console.log("No token found, redirecting to login");
+                    
                     router.push("/auth/login");
                     setStatus("unauthenticated");
                     return;
@@ -80,7 +80,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
                 const response = await symptomDepartmentOperation.getAllSymptoms();
                 
                 if (!response.success || response.status !== 200) {
-                    console.log("User not authenticated, redirecting to login");
+                    
                     router.push("/auth/login");
                     setStatus("unauthenticated");
                     return;
@@ -88,7 +88,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
 
                 // Extract user data from JWT token
                 const userData = extractUserFromToken(token);
-                console.log("Authenticated user data:", userData);
+                
                 // Create session object with data from JWT token
                 const userSessionData: userSession = {
                     role: userData.role || 'PATIENT',
@@ -103,7 +103,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
                 setStatus("authenticated");
                 
             } catch (error) {
-                console.error("Authentication error:", error);
+                
                 
                 // Only redirect to login if not on public routes
                 if (!isPublicRoute) {
@@ -166,7 +166,7 @@ export function useAuth() {
             await logout("/auth/login");
             setSession(null);
         } catch (error) {
-            console.error("Logout error:", error);
+            
             // Force redirect even if logout fails
             router.push("/auth/login");
             setSession(null);

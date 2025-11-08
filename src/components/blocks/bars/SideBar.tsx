@@ -1,232 +1,207 @@
-import clsx from "clsx";
-import { usePathname } from "next/navigation"; // Import usePathname
-import Link from "next/link"; // Import Link from next/link
-import {
-  MicrosoftIcon,
-  GoogleIcon,
-  HomeIcon,
-  UsersIcon,
-  SettingsIcon,
-  PlusIcon,
-  FeedbackIcon,
-  ChevronLeftIcon,
-  LogoIcon,
-  MenuIcon, // Import MenuIcon
-} from "../../icons";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import Image from "next/image";
-import { useSidebar } from "@/context/SidebarContext";
-import { ThemeSelector } from "@/components/widgets/ThemeSwitcher/ThemeSelector";
-import { useSession } from "@/context/Sessioncontext";
-import { Logout } from "./Logout";
+'use client';
 
-export default function Sidebar() {
-  const { isOpen, setIsOpen } = useSidebar();
-  const pathname = usePathname(); // Get the current pathname
-  const { session } = useSession(); // Fetch session data
+import Link from 'next/link';
+import {
+  Home,
+  User,
+  Calendar,
+  LogOut,
+  Users,
+  Stethoscope,
+  Building,
+  AlertCircle,
+  ClipboardList,
+  IdCard,
+  ChevronDown,
+} from 'lucide-react';
+import { useAuth, useSession } from '@/context/Sessioncontext';
+import { useState } from 'react';
+import React from 'react';
 
-  // Navigation configuration array
-  const navigationLinks = [
-    { title: "Home", route: "/dashboard/home", icon: <HomeIcon size={18} /> },
-    { title: "Contacts", route: "/dashboard/contacts", icon: <UsersIcon size={18} /> },
-    { title: "Settings", route: "/dashboard/settings", icon: <SettingsIcon size={18} /> },
+interface SidebarProps {
+  className?: string;
+}
+
+/* --- types --- */
+// link item
+type MenuLink = {
+  type: 'link';
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  danger?: boolean;
+};
+
+// dropdown item
+type MenuDropdown = {
+  type: 'dropdown';
+  label: string;
+  icon: React.ReactNode;
+  open: boolean;
+  toggle: () => void;
+  children: { href: string; label: string; icon?: React.ReactNode }[];
+};
+
+type MenuItem = MenuLink | MenuDropdown;
+
+export function Sidebar({ className = '' }: SidebarProps) {
+  const { session, status, logout: handleAuthLogout, isAuthenticated, userName: authUserName, userEmail } = useAuth();
+  
+  const role = session?.role;
+  const [openUserMenu, setOpenUserMenu] = useState(false);
+
+  // doctor menu (all items explicit type:'link')
+  const doctorMenu: MenuLink[] = [
+    {
+      type: 'link',
+      href: '/doctor/dashboard',
+      icon: <Home />,
+      label: 'Bảng điều khiển',
+    },
+    {
+      type: 'link',
+      href: '/doctor/appointments',
+      icon: <Calendar />,
+      label: 'Lịch hẹn của tôi',
+    },
+    { type: 'link', href: '/doctor/profile', icon: <IdCard />, label: 'Hồ sơ' },
   ];
 
-  return (
-    <aside
-      className={clsx(
-        "hidden lg:flex fixed z-40 inset-y-0 left-0 bg-background Q overflow-x-hidden border-r p-4 flex-col transition-all duration-300",
+  // admin menu: include a dropdown item (type:'dropdown')
+  const adminMenu: MenuItem[] = [
+    {
+      type: 'link',
+      href: '/admin/dashboard',
+      icon: <Home />,
+      label: 'Bảng điều khiển',
+    },
+
+    {
+      type: 'dropdown',
+      label: 'Quản lý người dùng',
+      icon: <Users />,
+      open: openUserMenu,
+      toggle: () => setOpenUserMenu((v) => !v),
+      children: [
+        { href: '/admin/users/admin', label: 'Admin', icon: <User /> },
         {
-          "w-64": isOpen, // Full width when open
-          "w-[4.1rem]": !isOpen, // Compact width when collapsed
-        }
-      )}
-    >
-      {/* Header */}
-      <div className="flex items-center gap-2 mb-6 w-full justify-between">
-        {isOpen ? (
-          <div className="flex items-center gap-2">
-            <LogoIcon className="text-foreground p-2 border rounded-md w-fit h-fit" />
-            <span className="font-bold text-lg">Acme</span>
-          </div>
-        ) : (
-          <button
-            className="ml-auto inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent"
-            onClick={() => setIsOpen(true)} // Open the sidebar
-          >
-            <MenuIcon size={18} className="text-muted-foreground" />
-          </button>
-        )}
-        {isOpen && (
-          <button
-            className="ml-auto inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-accent"
-            onClick={() => setIsOpen(false)} // Close the sidebar
-          >
-            <ChevronLeftIcon size={18} className="text-muted-foreground" />
-          </button>
-        )}
-      </div>
+          href: '/admin/users/doctor',
+          label: 'Bác sĩ',
+          icon: <Stethoscope />,
+        },
+        { href: '/admin/users/patient', label: 'Bệnh nhân', icon: <User /> },
+      ],
+    },
 
-      {/* Navigation */}
-      <nav className="space-y-1 mb-6 w-full">
-        {navigationLinks.map((link) => (
-          <Link
-            key={link.route}
-            href={link.route}
-            className={clsx(
-              "flex items-center gap-3 rounded px-2 py-2 hover:bg-accent",
-              {
-                "bg-accent font-bold": pathname === link.route, // Highlight active page
-              }
-            )}
-          >
-            {link.icon}
-            <span
-              className={clsx("text-sm font-medium transition-opacity duration-300", {
-                "opacity-0": !isOpen,
-              })}
-            >
-              {link.title}
-            </span>
-          </Link>
-        ))}
-      </nav>
+    {
+      type: 'link',
+      href: '/admin/departments',
+      icon: <Building />,
+      label: 'Khoa',
+    },
+    {
+      type: 'link',
+      href: '/admin/symptoms',
+      icon: <AlertCircle />,
+      label: 'Triệu chứng',
+    },
+    {
+      type: 'link',
+      href: '/admin/appointments',
+      icon: <ClipboardList />,
+      label: 'Lịch hẹn',
+    },
+    { type: 'link', href: '/admin/profile', icon: <IdCard />, label: 'Hồ sơ' },
+  ];
 
-      {/* Favorites */}
-      <div className="mb-6 w-full">
-        <p
-          className={clsx(
-            "text-sm font-semibold text-muted-foreground mb-3 transition-opacity duration-300",
-            { "opacity-0": !isOpen }
-          )}
-        >
-          Favorites
-        </p>
-        <div className="flex flex-col gap-4 mt-5">
-          <div className="flex hover:cursor-pointer items-center gap-3 p-2 rounded-md hover:bg-accent hover:text-foreground transition-colors" >
-            <div className="w-[18px] h-[18px] relative shrink-0">
-              <Image
-                className="rounded-md object-cover"
-                alt="Airbnb"
-                src="https://demo.achromatic.dev/api/contact-images/d1f1feea-13d0-467b-9ee6-e9e1d3dd05c1?v=51bbe674c4608776218704a0bdc00a18082affe42b946db6d3c80cb579f1829e"
-                fill
-              />
-            </div>
-            <span
-              className={clsx("text-sm font-medium transition-opacity duration-300", {
-                "opacity-0": !isOpen,
-              })}
-            >
-              Airbnb
-            </span>
-          </div>
-          <div className="flex hover:cursor-pointer items-center gap-3 p-2 rounded-md hover:bg-accent hover:text-foreground transition-colors">
-            <GoogleIcon size={18} />
-            <span
-              className={clsx("text-sm font-medium transition-opacity duration-300", {
-                "opacity-0": !isOpen,
-              })}
-            >
-              Google
-            </span>
-          </div>
-          <div className="flex hover:cursor-pointer items-center gap-3 p-2 rounded-md hover:bg-accent hover:text-foreground transition-colors">
-            <MicrosoftIcon size={18} />
-            <span
-              className={clsx("text-sm font-medium transition-opacity duration-300", {
-                "opacity-0": !isOpen,
-              })}
-            >
-              Microsoft
-            </span>
-          </div>
-        </div>
-      </div>
+  const menuItems: MenuItem[] = role === 'ADMIN' ? adminMenu : doctorMenu;
 
-      {/* Spacer */}
-      <div className="flex-grow"></div>
+  return (
+    <aside className={`bg-white border-r min-h-screen p-4 ${className}`}>
+      <h2 className="text-lg font-bold mb-4 text-blue-600">
+        {role === 'ADMIN' ? 'Quản trị' : 'Bác sĩ'}
+      </h2>
 
-      {/* Actions */}
-      <div className="border-t pt-4 flex flex-col gap-3 w-full text-nowrap">
-        <button className="rounded-md flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-2 py-2">
-          <PlusIcon size={18} />
-          <span
-            className={clsx("transition-opacity duration-300", {
-              "opacity-0": !isOpen,
-            })}
-          >
-            Invite member
-          </span>
-        </button>
-        <button className="rounded-md flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground  hover:bg-accent px-2 py-2">
-          <FeedbackIcon size={18} />
-          <span
-            className={clsx("transition-opacity duration-300", {
-              "opacity-0": !isOpen,
-            })}
-          >
-            Feedback
-          </span>
-        </button>
-
-        <Popover>
-          <PopoverTrigger>
-            <div className="rounded-md flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-2 py-2">
-              
-                <div className="w-[20px] h-[20px] relative shrink-0">
-                  <Image
-                    className="rounded-full object-cover"
-                    alt="User"
-                    src={session?.avaUrl || "/user.jpg"} // Use session avatar or fallback
-                    fill
+      <nav className="space-y-2">
+        {menuItems.map((item) => {
+          if (item.type === 'dropdown') {
+            // TS knows item is MenuDropdown here
+            return (
+              <div key={item.label}>
+                <button
+                  onClick={item.toggle}
+                  className="flex items-center justify-between w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
+                >
+                  <div className="flex items-center gap-2">
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform ${item.open ? 'rotate-180' : ''}`}
                   />
-                </div>
-              <span
-                className={clsx("transition-opacity duration-300", {
-                  "opacity-0": !isOpen,
-                })}
-              >
-                {session?.name || "Guest"} {/* Use session name or fallback */}
-              </span>
-            </div>
-          </PopoverTrigger>
-          <PopoverContent className="w-64 p-4 bg-background rounded-lg shadow-md">
-            <div className="flex flex-col gap-2">
-              <div className="text-sm font-semibold">{session?.name || "Guest"}</div>
-              <div className="text-xs text-muted-foreground">{session?.email || "No email available"}</div>
-            </div>
-            <div className="mt-4 border-t pt-4 space-y-2">
-              <button className="flex items-center justify-between w-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-2 py-2 rounded-md">
-                <span>Profile</span>
-                <span className="text-xs">⇧P</span>
-              </button>
-              <button className="flex items-center justify-between w-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-2 py-2 rounded-md">
-                <span>Billing</span>
-                <span className="text-xs">⇧B</span>
-              </button>
-              <button className="flex items-center justify-between w-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-2 py-2 rounded-md">
-                <span>Command Menu</span>
-                <span className="text-xs">⌘K</span>
-              </button>
-              <div className="flex items-center justify-between w-full text-sm text-muted-foreground hover:bg-accent px-2 py-2 rounded-md">
-                <span>Theme</span>
-                <div className="flex items-center gap-2">
-                    <ThemeSelector />
-                </div>
+                </button>
+
+                {item.open && (
+                  <div className="ml-6 mt-1 flex flex-col gap-1">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className="flex items-center gap-2 px-3 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-md"
+                      >
+                        {child.icon}
+                        <span>{child.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
-              <button className="flex items-center justify-between w-full text-sm text-muted-foreground hover:text-foreground hover:bg-accent px-2 py-2 rounded-md">
-                {/* <span>Log out</span> */}
-                <Logout/>
-                <span className="text-xs">⇧L</span>
-              </button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+            );
+          }
+
+          // else it's MenuLink (TS narrows)
+          return (
+            <SideItem
+              key={item.href}
+              href={item.href}
+              icon={item.icon}
+              label={item.label}
+              danger={item.danger}
+            />
+          );
+        })}
+
+        <hr className="my-3" />
+
+        <SideItem href="/logout" icon={<LogOut />} label="Đăng xuất" danger />
+      </nav>
     </aside>
+  );
+}
+
+function SideItem({
+  href,
+  icon,
+  label,
+  danger,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  danger?: boolean;
+}) {
+  const { session, status, logout: handleAuthLogout, isAuthenticated, userName: authUserName, userEmail } = useAuth();
+
+  return (
+    <Link
+      href={href}
+      className={`flex items-center gap-3 px-3 py-2 rounded-md
+      ${danger ? 'text-red-600' : 'text-gray-700'}
+      hover:bg-gray-100 transition`}
+      onClick = {() => handleAuthLogout()}
+    >
+      {icon}
+      <span>{label}</span>
+    </Link>
   );
 }

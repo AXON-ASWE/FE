@@ -28,15 +28,13 @@ export function ProtectedRoute({ children, requiredRole, fallbackPath = "/auth/l
                 router.push(fallbackPath);
                 return;
             }
-            console.log("User Role:", requiredRole);
             if (requiredRole && !hasRole(requiredRole)) {
-                // Redirect to appropriate dashboard based on user role
                 const redirectPaths = {
-                    'ADMIN': '/dashboard/admin',
-                    'DOCTOR': '/dashboard/doctor',
+                    'ADMIN': '/admin',
+                    'DOCTOR': '/doctor',
                     'PATIENT': '/'
                 };
-                router.push(redirectPaths[userRole!] || '/dashboard/home');
+                router.push(redirectPaths[userRole!] || '/auth/login');
                 return;
             }
         }
@@ -120,12 +118,12 @@ export function PublicRoute({ children }: { children: React.ReactNode }) {
         if (!isLoading && isAuthenticated) {
             // Redirect authenticated users to their appropriate dashboard
             const redirectPaths = {
-                'ADMIN': '/dashboard/admin',
-                'DOCTOR': '/dashboard/doctor',
-                'PATIENT': '/dashboard/home'
+                'ADMIN': '/admin',
+                'DOCTOR': '/doctor',
+                'PATIENT': '/'
             };
             
-            router.push(redirectPaths[userRole!] || '/dashboard/home');
+            router.push(redirectPaths[userRole!] || '/auth/login');
         }
     }, [isAuthenticated, isLoading, userRole, router]);
 

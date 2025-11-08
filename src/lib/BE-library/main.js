@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.symptomDepartmentOperation = exports.appointmentOperation = exports.doctorOperation = exports.authOperation = exports.BASE_URL = exports.apiClient = exports.getAccessToken = exports.AxonHealthcareUtils = void 0;
+exports.symptomDepartmentOperation = exports.appointmentOperation = exports.doctorOperation = exports.adminOperation = exports.authOperation = exports.BASE_URL = exports.apiClient = exports.getAccessToken = exports.AxonHealthcareUtils = void 0;
 var axios_1 = require("axios");
 function getAccessToken() {
     if (typeof document === 'undefined')
@@ -138,6 +138,524 @@ var AuthOperation = /** @class */ (function () {
     };
     return AuthOperation;
 }());
+/**
+ * Admin Management Operations
+ */
+var AdminOperation = /** @class */ (function () {
+    function AdminOperation() {
+    }
+    /**
+     * Admin Ping Test
+     * GET /api/admin/ping
+     */
+    AdminOperation.prototype.adminPing = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get('/api/admin/ping')];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_3 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_3, 'Admin Ping')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Admin Registration (Initial setup)
+     * POST /api/admin/register
+     */
+    AdminOperation.prototype.adminRegister = function (payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.post('/api/admin/register', payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_4 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_4, 'Admin Registration')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get All Patients
+     * GET /api/admin/patient
+     */
+    AdminOperation.prototype.getAllPatients = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get('/api/admin/patient')];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_5 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_5, 'Get All Patients')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Update Patient
+     * PUT /api/admin/patient/{patientId}
+     */
+    AdminOperation.prototype.updatePatient = function (patientId, payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.put("/api/admin/patient/".concat(patientId), payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_6 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_6, 'Update Patient')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Delete Patient (Soft Delete)
+     * DELETE /api/admin/patient/{patientId}
+     */
+    AdminOperation.prototype.deletePatient = function (patientId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.delete("/api/admin/patient/".concat(patientId))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_7 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_7, 'Delete Patient')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get All Departments
+     * GET /api/admin/department
+     */
+    AdminOperation.prototype.getAllDepartments = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_8;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get('/api/admin/department')];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_8 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_8, 'Get All Departments')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Create Department
+     * POST /api/admin/department
+     */
+    AdminOperation.prototype.createDepartment = function (payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_9;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.post('/api/admin/department', payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_9 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_9, 'Create Department')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get Department by ID
+     * GET /api/admin/department/{departmentId}
+     */
+    AdminOperation.prototype.getDepartmentById = function (departmentId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_10;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get("/api/admin/department/".concat(departmentId))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_10 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_10, 'Get Department by ID')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Update Department
+     * PUT /api/admin/department/{departmentId}
+     */
+    AdminOperation.prototype.updateDepartment = function (departmentId, payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_11;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.put("/api/admin/department/".concat(departmentId), payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_11 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_11, 'Update Department')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Create Doctor (Admin)
+     * POST /api/admin/doctor
+     */
+    AdminOperation.prototype.createDoctorAdmin = function (payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_12;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.post('/api/doctor', payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_12 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_12, 'Create Doctor (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get All Doctors (Admin)
+     * GET /api/admin/doctor
+     */
+    AdminOperation.prototype.getAllDoctorsAdmin = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_13;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get('/api/admin/doctor')];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_13 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_13, 'Get All Doctors (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get Doctor by ID (Admin)
+     * GET /api/admin/doctor/{id}
+     */
+    AdminOperation.prototype.getDoctorByIdAdmin = function (doctorId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_14;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get("/api/admin/doctor/".concat(doctorId))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_14 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_14, 'Get Doctor by ID (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Update Doctor (Admin)
+     * PUT /api/admin/doctor/{id}
+     */
+    AdminOperation.prototype.updateDoctorAdmin = function (doctorId, payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_15;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.put("/api/admin/doctor/".concat(doctorId), payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_15 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_15, 'Update Doctor (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Delete Doctor (Admin - Soft Delete)
+     * DELETE /api/admin/doctor/{id}
+     */
+    AdminOperation.prototype.deleteDoctorAdmin = function (doctorId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_16;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.delete("/api/admin/doctor/".concat(doctorId))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_16 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_16, 'Delete Doctor (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get All Symptoms (Admin)
+     * GET /api/admin/symptom
+     */
+    AdminOperation.prototype.getAllSymptomsAdmin = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_17;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get('/api/admin/symptom')];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_17 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_17, 'Get All Symptoms (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Get Symptom by ID (Admin)
+     * GET /api/admin/symptom/{id}
+     */
+    AdminOperation.prototype.getSymptomByIdAdmin = function (symptomId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_18;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.get("/api/admin/symptom/".concat(symptomId))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_18 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_18, 'Get Symptom by ID (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Add New Symptom (Admin)
+     * POST /api/admin/symptom
+     */
+    AdminOperation.prototype.createSymptomAdmin = function (payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_19;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.post('/api/admin/symptom', payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_19 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_19, 'Create Symptom (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Update Symptom (Admin)
+     * PUT /api/admin/symptom/{id}
+     */
+    AdminOperation.prototype.updateSymptomAdmin = function (symptomId, payload) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_20;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.put("/api/admin/symptom/".concat(symptomId), payload)];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                data: response.data,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_20 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_20, 'Update Symptom (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Delete Symptom (Admin)
+     * DELETE /api/admin/symptom/{id}
+     */
+    AdminOperation.prototype.deleteSymptomAdmin = function (symptomId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var response, error_21;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, apiClient.delete("/api/admin/symptom/".concat(symptomId))];
+                    case 1:
+                        response = _a.sent();
+                        return [2 /*return*/, {
+                                success: true,
+                                status: response.status,
+                            }];
+                    case 2:
+                        error_21 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_21, 'Delete Symptom (Admin)')];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return AdminOperation;
+}());
 var DoctorOperation = /** @class */ (function () {
     function DoctorOperation() {
     }
@@ -147,7 +665,7 @@ var DoctorOperation = /** @class */ (function () {
      */
     DoctorOperation.prototype.getDoctorsByDepartment = function (departmentId) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_3;
+            var response, error_22;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -161,8 +679,8 @@ var DoctorOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_3 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_3, 'Get Doctors by Department')];
+                        error_22 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_22, 'Get Doctors by Department')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -174,7 +692,7 @@ var DoctorOperation = /** @class */ (function () {
      */
     DoctorOperation.prototype.createDoctor = function (payload) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_4;
+            var response, error_23;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -188,8 +706,8 @@ var DoctorOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_4 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_4, 'Create Doctor')];
+                        error_23 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_23, 'Create Doctor')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -206,7 +724,7 @@ var AppointmentOperation = /** @class */ (function () {
      */
     AppointmentOperation.prototype.getAvailableTimeSlots = function (doctorId, date) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_5;
+            var response, error_24;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -220,8 +738,8 @@ var AppointmentOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_5 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_5, 'Get Available Time Slots')];
+                        error_24 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_24, 'Get Available Time Slots')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -233,7 +751,7 @@ var AppointmentOperation = /** @class */ (function () {
      */
     AppointmentOperation.prototype.getPatientAppointments = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_6;
+            var response, error_25;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -247,8 +765,8 @@ var AppointmentOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_6 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_6, 'Get Patient Appointments')];
+                        error_25 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_25, 'Get Patient Appointments')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -260,7 +778,7 @@ var AppointmentOperation = /** @class */ (function () {
      */
     AppointmentOperation.prototype.getDoctorAppointments = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_7;
+            var response, error_26;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -274,8 +792,8 @@ var AppointmentOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_7 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_7, 'Get Doctor Appointments')];
+                        error_26 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_26, 'Get Doctor Appointments')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -287,7 +805,7 @@ var AppointmentOperation = /** @class */ (function () {
      */
     AppointmentOperation.prototype.createAppointment = function (payload) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_8;
+            var response, error_27;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -301,8 +819,8 @@ var AppointmentOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_8 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_8, 'Create Appointment')];
+                        error_27 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_27, 'Create Appointment')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -314,7 +832,7 @@ var AppointmentOperation = /** @class */ (function () {
      */
     AppointmentOperation.prototype.cancelAppointment = function (appointmentId) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_9;
+            var response, error_28;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -328,8 +846,8 @@ var AppointmentOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_9 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_9, 'Cancel Appointment')];
+                        error_28 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_28, 'Cancel Appointment')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -341,7 +859,7 @@ var AppointmentOperation = /** @class */ (function () {
      */
     AppointmentOperation.prototype.rescheduleAppointment = function (appointmentId, payload) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_10;
+            var response, error_29;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -355,8 +873,8 @@ var AppointmentOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_10 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_10, 'Reschedule Appointment')];
+                        error_29 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_29, 'Reschedule Appointment')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -398,7 +916,7 @@ var SymptomDepartmentOperation = /** @class */ (function () {
      */
     SymptomDepartmentOperation.prototype.getAllSymptoms = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_11;
+            var response, error_30;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -412,8 +930,8 @@ var SymptomDepartmentOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_11 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_11, 'Get All Symptoms')];
+                        error_30 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_30, 'Get All Symptoms')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -425,7 +943,7 @@ var SymptomDepartmentOperation = /** @class */ (function () {
      */
     SymptomDepartmentOperation.prototype.suggestDepartmentBySymptoms = function (payload) {
         return __awaiter(this, void 0, void 0, function () {
-            var response, error_12;
+            var response, error_31;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -439,8 +957,8 @@ var SymptomDepartmentOperation = /** @class */ (function () {
                                 status: response.status,
                             }];
                     case 2:
-                        error_12 = _a.sent();
-                        return [2 /*return*/, handleApiError(error_12, 'Suggest Department by Symptoms')];
+                        error_31 = _a.sent();
+                        return [2 /*return*/, handleApiError(error_31, 'Suggest Department by Symptoms')];
                     case 3: return [2 /*return*/];
                 }
             });
@@ -533,6 +1051,8 @@ exports.AxonHealthcareUtils = AxonHealthcareUtils;
 // Create instances for export
 var authOperation = new AuthOperation();
 exports.authOperation = authOperation;
+var adminOperation = new AdminOperation();
+exports.adminOperation = adminOperation;
 var doctorOperation = new DoctorOperation();
 exports.doctorOperation = doctorOperation;
 var appointmentOperation = new AppointmentOperation();

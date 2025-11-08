@@ -49,7 +49,6 @@ export const AuthForm = () => {
         
         setTokenCookie(result.data.accessToken, result.data.expiration);
         
-        console.log("Login successful:", result.data);
         const userRole = result.data.role;
         setSuccess(`Đăng nhập thành công với vai trò ${userRole}! Đang chuyển hướng đến trang chủ...`);
         
@@ -117,28 +116,6 @@ export const AuthForm = () => {
         >
           {loading ? "Đang đăng nhập..." : "Đăng nhập"}
         </CustomButton>
-        <div className="flex items-center gap-4 text-muted-foreground text-sm">
-          <div className="h-px flex-1 bg-gray-300" />
-          Hoặc tiếp tục với
-          <div className="h-px flex-1 bg-gray-300" />
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <CustomButton
-            className=" w-full border border-gray-300 hover:bg-accent"
-            onClick={() => console.log("Google login")}
-          >
-            <GoogleIcon className="mr-2" />
-            Google
-          </CustomButton>
-          <CustomButton
-            className="!text-foreground w-full border border-gray-300 hover:bg-accent"
-            onClick={() => console.log("Microsoft login")}
-          >
-            <MicrosoftIcon className="mr-2" />
-            Microsoft
-          </CustomButton>
-        </div>
       </form>
       <p className="items-center p-6 pt-0 flex justify-center gap-1 text-sm text-muted-foreground">
         Chưa có tài khoản?{" "}

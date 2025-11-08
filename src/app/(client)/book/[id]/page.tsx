@@ -36,7 +36,6 @@ export default function BookAppointmentPage() {
     const storedData = getAppointmentData();
     if (storedData) {
       setStoredAppointmentData(storedData);
-      console.log('Loaded stored appointment data:', storedData);
       
       
       if (storedData.selectedDoctor.id !== doctorId) {

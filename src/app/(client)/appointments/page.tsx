@@ -62,7 +62,6 @@ const AppointmentCard = ({ appointment, onCancel, isLoading }: AppointmentCardPr
       day: 'numeric'
     });
   };
-  console.log(appointment);
   const canCancel = appointment.status === 'SCHEDULED' && new Date(appointment.appointmentDate) > new Date();
 
   return (

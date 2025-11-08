@@ -25,14 +25,14 @@ export function checkAuthStatus() {
   const isLoggedIn = isAuthenticated();
   const userRole = getCurrentUserRole();
   
-  console.log("Is authenticated:", isLoggedIn);
-  console.log("User role:", userRole);
+  
+  
   
   if (isLoggedIn && userRole) {
-    console.log(`User is logged in as ${userRole}`);
-    console.log(`Should redirect to: ${getRedirectPath(userRole)}`);
+    
+    
   } else {
-    console.log("User is not logged in");
+    
   }
 }
 
@@ -40,27 +40,27 @@ export function checkAuthStatus() {
 export function checkPermissions() {
   // Check if user can access admin features
   if (hasRole('ADMIN')) {
-    console.log("User has admin access");
+    
   }
   
   // Check if user can access doctor features
   if (hasRole('DOCTOR')) {
-    console.log("User has doctor access");
+    
   }
   
   // Check if user can access patient features
   if (hasRole('PATIENT')) {
-    console.log("User has patient access");
+    
   }
   
   // Check general access
   if (canAccess()) {
-    console.log("User has general access");
+    
   }
   
   // Check specific role access
   if (canAccess('ADMIN')) {
-    console.log("User can access admin-only features");
+    
   }
 }
 
@@ -73,11 +73,11 @@ export async function performLogout() {
   try {
     const result = await logout("/auth/login");
     if (result.success) {
-      console.log("Logout successful");
+      
       // User will be redirected to login page
     }
   } catch (error) {
-    console.error("Logout failed:", error);
+    
   }
 }
 
@@ -86,10 +86,10 @@ export async function logoutWithCustomRedirect() {
   try {
     const result = await logout("/");
     if (result.success) {
-      console.log("Logout successful, redirected to home");
+      
     }
   } catch (error) {
-    console.error("Logout failed:", error);
+    
   }
 }
 
@@ -197,7 +197,7 @@ export function getDashboardContent() {
 export function handleTokenRefresh() {
   // Check if token is expired
   if (!isAuthenticated()) {
-    console.log("Token expired, redirecting to login");
+    
     logout("/auth/login");
   }
 }
@@ -206,7 +206,7 @@ export function handleTokenRefresh() {
 export function setupAutoLogout() {
   setInterval(() => {
     if (!isAuthenticated()) {
-      console.log("Session expired, logging out");
+      
       logout("/auth/login");
     }
   }, 60000); // Check every minute

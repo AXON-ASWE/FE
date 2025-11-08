@@ -37,7 +37,6 @@ export default function FindPage() {
 
       try {
         const result = await symptomDepartmentOperation.getAllSymptoms();
-        console.log('All symptoms loaded for URL parsing:', result);
         if (result.success && result.data) {
           setAllSymptoms(result.data);
 
@@ -49,7 +48,6 @@ export default function FindPage() {
           const matchedSymptoms = result.data.filter((symptom) =>
             queryIds.includes(symptom.id)
           );
-          console.log('Matched symptoms from URL IDs:', matchedSymptoms);
           if (matchedSymptoms.length > 0) {
             setSelectedSymptoms(matchedSymptoms);
             await performSearch(matchedSymptoms);

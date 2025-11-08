@@ -82,9 +82,9 @@ export const hasRole = (role: 'ADMIN' | 'DOCTOR' | 'PATIENT'): boolean => {
 export const getRedirectPath = (role: 'ADMIN' | 'DOCTOR' | 'PATIENT'): string => {
   switch (role) {
     case 'ADMIN':
-      return '/dashboard/admin';
+      return '/admin/dashboard';
     case 'DOCTOR':
-      return '/dashboard/doctor';
+      return '/doctor/dashboard';
     case 'PATIENT':
     default:
       return '/';

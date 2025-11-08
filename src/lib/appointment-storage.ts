@@ -15,10 +15,10 @@ const STORAGE_KEY = 'appointmentData';
 export const saveAppointmentData = (data: AppointmentData): boolean => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    console.log('Appointment data saved to localStorage:', data);
+    
     return true;
   } catch (error) {
-    console.error('Error saving appointment data to localStorage:', error);
+    
     return false;
   }
 };
@@ -46,7 +46,7 @@ export const getAppointmentData = (): AppointmentData | null => {
     
     return parsedData;
   } catch (error) {
-    console.error('Error retrieving appointment data from localStorage:', error);
+    
     return null;
   }
 };
@@ -57,9 +57,9 @@ export const getAppointmentData = (): AppointmentData | null => {
 export const clearAppointmentData = (): void => {
   try {
     localStorage.removeItem(STORAGE_KEY);
-    console.log('Appointment data cleared from localStorage');
+    
   } catch (error) {
-    console.error('Error clearing appointment data from localStorage:', error);
+    
   }
 };
 
